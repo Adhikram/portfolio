@@ -28,7 +28,24 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <title>{title}</title>
   </head>
   <body>
-    <div class="mx-auto max-w-[65ch] px-5 py-16 sm:py-24">
+    <header
+      class="sticky top-0 z-10 border-b border-rule bg-paper/85 backdrop-blur-md"
+    >
+      <div
+        class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3"
+      >
+        <a href="#top" class="mono text-sm text-ink no-underline hover:text-accent"
+          >{site.name}</a
+        >
+        <nav class="mono flex flex-wrap gap-x-4 gap-y-1 text-xs text-mute">
+          <a href="#work">Work</a>
+          <a href="#loop">Loop</a>
+          <a href="#activity">GitHub</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+    <div class="mx-auto max-w-5xl px-5 py-12 sm:py-16">
       <slot />
     </div>
   </body>

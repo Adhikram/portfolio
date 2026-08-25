@@ -1,100 +1,102 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { site, timeline } from "../data/site";
+import ProductCard from "../components/ProductCard.astro";
+import { site, loop, products } from "../data/site";
 import { fetchRecentPullRequests } from "../lib/github";
 
 const prs = await fetchRecentPullRequests(
   site.githubUser,
   process.env.GITHUB_TOKEN,
 );
+
+const featured = products.filter((p) => p.featured);
+const rest = products.filter((p) => !p.featured);
 ---
 
 <Layout>
-  <header>
-    <p class="mono text-sm tracking-wide text-mute">{site.name}</p>
-    <h1 class="mt-6 text-[1.65rem] font-medium leading-snug tracking-tight">
-      Hey, I am Adhikram
+  <section id="top" class="scroll-mt-24">
+    <p class="mono text-sm tracking-wide text-mute">
+      Founding engineer · founder · data platforms
+    </p>
+    <h1 class="mt-4 max-w-3xl text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
+      I ship production GenAI with operators.
     </h1>
-  </header>
-
-  <section class="mt-8 space-y-5 text-[1.05rem] leading-7 text-ink">
-    <p>
-      I ship production GenAI with operators, not in a vacuum. Forward-deployed
-      AI engineer: agentic and RAG systems in customer environments, 5+ years of
-      data and backend at scale, founder who took a SaaS from 0 to $20K MRR and
-      runs a live GenAI product (<a href={site.techprufer}>TechPrufer</a>).
+    <p class="mt-6 max-w-2xl text-lg leading-8 text-ink/90">
+      Hey, I am Adhikram. I embed with the people who run the workflow, then
+      take agents and RAG from a messy desk to something that moves a number:
+      deal flow, latency, or MRR.
     </p>
-    <p>
-      At
-      <a href={site.anax}>ANAX</a>
-      I sit with brokers and pull real-estate workflows into grounded retrieval
-      over 20K+ financial docs. TechPrufer is the public loop: job intel, tailor
-      agents, MCP across IDEs, 400+ companies, about 2,000 unique users a day.
+    <p class="mt-4 max-w-2xl leading-7 text-mute">
+      Right now: founding engineer at
+      <a href="https://anaxrep.com/">ANAX</a>, and
+      <a href="https://techprufer.com/">TechPrufer</a>
+      as the public side product. Based in India. Open to relocate for a
+      forward-deployed / AI deployment seat.
     </p>
-    <p>
-      I will not drown in your data plane.
-      <a href={site.mediaNet}>Media.net</a>
-      : billions of rows, streaming at 50k events/s, latency down ~50%. I want
-      the seat where discovery, prototype, and production are the same job, then
-      the pattern gets written down so the next deploy is faster.
-    </p>
-    <p>
+    <p class="mt-6 flex flex-wrap gap-x-4 gap-y-2">
       <a href={site.resume}>Resume</a>
-      ·
       <a href={site.linkedin}>LinkedIn</a>
-      ·
       <a href={site.github}>GitHub</a>
-      ·
-      <a href={`mailto:${site.email}`}>{site.email}</a>
+      <a href={`mailto:${site.email}`}>Email</a>
     </p>
   </section>
 
-  <hr class="my-14 border-0 border-t border-rule" />
-
-  <section>
-    <h2 class="text-sm font-medium tracking-wide text-mute">History</h2>
-    <ul class="mt-8 space-y-6">
+  <section
+    id="loop"
+    class="mt-16 scroll-mt-24 border-t border-rule pt-12"
+  >
+    <h2 class="text-sm font-medium tracking-wide text-mute">How I work</h2>
+    <p class="mt-3 max-w-2xl leading-7">
+      Same loop on every product: discovery, prototype, production, then write
+      it down. That is the FDE job I am optimizing for.
+    </p>
+    <ol class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {
-        timeline.map((row) => (
-          <li class="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:gap-8">
-            <p class="mono text-sm text-mute">{row.era}</p>
-            <p class="leading-7" set:html={row.body} />
+        loop.map((step) => (
+          <li class="border border-rule p-4">
+            <p class="mono text-xs text-mute">{step.n}</p>
+            <p class="mt-2 font-medium tracking-tight">{step.title}</p>
+            <p class="mt-2 text-sm leading-6 text-mute">{step.body}</p>
           </li>
         ))
       }
-    </ul>
+    </ol>
   </section>
 
-  <hr class="my-14 border-0 border-t border-rule" />
-
-  <section>
-    <h2 class="text-sm font-medium tracking-wide text-mute">Now</h2>
-    <p class="mt-6 leading-7">
-      Shipping TechPrufer in public, embedding with brokers at ANAX, and writing
-      the operator loop as I go: discover, prototype, productionize, then
-      codify. Based in India. Open to relocate for a forward-deployed / AI
-      deployment seat.
+  <section id="work" class="mt-16 scroll-mt-24 border-t border-rule pt-12">
+    <h2 class="text-sm font-medium tracking-wide text-mute">Products I ship</h2>
+    <p class="mt-3 max-w-2xl leading-7">
+      Work seats first, then products I own. Each card is a live system, not a
+      stack list.
     </p>
+
+    <div class="mt-8 grid gap-5 sm:grid-cols-2">
+      {featured.map((product) => <ProductCard product={product} />)}
+    </div>
+    <div class="mt-5 grid gap-5 sm:grid-cols-2">
+      {rest.map((product) => <ProductCard product={product} />)}
+    </div>
   </section>
 
-  <hr class="my-14 border-0 border-t border-rule" />
-
-  <section>
+  <section
+    id="activity"
+    class="mt-16 scroll-mt-24 border-t border-rule pt-12"
+  >
     <h2 class="text-sm font-medium tracking-wide text-mute">
-      Recent GitHub activity
+      Recent public GitHub
     </h2>
     {
       prs.length === 0 ? (
         <p class="mt-6 text-mute">
-          No public pull requests to list on this build. See
+          No public pull requests on this build. See
           <a href={site.github}>{site.githubUser}</a>.
         </p>
       ) : (
-        <ul class="mt-8 space-y-3">
-          {prs.map((pr) => (
-            <li class="grid gap-1 sm:grid-cols-[5rem_1fr] sm:gap-6">
+        <ul class="mt-8 divide-y divide-rule border-y border-rule">
+          {prs.slice(0, 8).map((pr) => (
+            <li class="grid gap-1 py-3 sm:grid-cols-[5.5rem_1fr] sm:gap-6">
               <span class="mono text-sm text-mute">{pr.state}</span>
-              <a href={pr.url}>
+              <a href={pr.url} class="min-w-0">
                 <span class="mono text-sm text-mute">{pr.repo}</span>
                 <span class="ml-2">{pr.title}</span>
               </a>
@@ -105,16 +107,19 @@ const prs = await fetchRecentPullRequests(
     }
   </section>
 
-  <hr class="my-14 border-0 border-t border-rule" />
-
-  <footer>
+  <footer
+    id="contact"
+    class="mt-16 scroll-mt-24 border-t border-rule pt-12"
+  >
     <h2 class="text-sm font-medium tracking-wide text-mute">Get in touch</h2>
-    <p class="mt-6 leading-7">
+    <p class="mt-4 leading-7">
       <a href={`mailto:${site.email}`}>{site.email}</a>
       ·
       <a href={site.linkedin}>LinkedIn</a>
       ·
       <a href={site.github}>GitHub</a>
+      ·
+      <a href={site.resume}>Resume</a>
     </p>
     <p class="mono mt-10 text-xs text-mute">
       adhikram.com · static Astro · rebuilt on each git push
