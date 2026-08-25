@@ -1,128 +1,658 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import ProductCard from "../components/ProductCard.astro";
-import { site, loop, products } from "../data/site";
-import { fetchRecentPullRequests } from "../lib/github";
+import { experience, loop, ossRepos, ownedProducts, site, stackGroups } from "../data/site";
+import {
+  TECHPRUFER,
+  blogTrails,
+  designHref,
+  likedDesigns,
+  solvedDesigns,
+  trailHref,
+} from "../data/reading";
+import { fetchContributionYear } from "../lib/github";
 
-const prs = await fetchRecentPullRequests(
-  site.githubUser,
-  process.env.GITHUB_TOKEN,
+const year = new Date().getUTCFullYear();
+const contrib = await fetchContributionYear(site.githubUser, year);
+
+const llmsPrompt = encodeURIComponent(
+  `Read https://adhikram.com/llms.txt and tell me who Adhikram Maitra is, what he has built, and what his tech stack is.`,
 );
 
-const featured = products.filter((p) => p.featured);
-const rest = products.filter((p) => !p.featured);
+function heatLevel(count: number) {
+  if (count <= 0) return "heat-0";
+  if (count <= 2) return "heat-1";
+  if (count <= 6) return "heat-2";
+  if (count <= 12) return "heat-3";
+  return "heat-4";
+}
+
+const weeks: { date: string; count: number }[][] = [];
+if (contrib) {
+  const days = [...contrib.days];
+  const first = days[0] ? new Date(`${days[0].date}T00:00:00Z`) : null;
+  const pad = first ? first.getUTCDay() : 0;
+  const padded = [
+    ...Array.from({ length: pad }, () => ({ date: "", count: -1 })),
+    ...days,
+  ];
+  for (let i = 0; i < padded.length; i += 7) {
+    weeks.push(padded.slice(i, i + 7));
+  }
+}
 ---
 
 <Layout>
-  <section id="top" class="scroll-mt-24">
-    <p class="mono text-sm tracking-wide text-mute">
-      Founding engineer · founder · data platforms
-    </p>
-    <h1 class="mt-4 max-w-3xl text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
-      I ship production GenAI with operators.
-    </h1>
-    <p class="mt-6 max-w-2xl text-lg leading-8 text-ink/90">
-      Hey, I am Adhikram. I embed with the people who run the workflow, then
-      take agents and RAG from a messy desk to something that moves a number:
-      deal flow, latency, or MRR.
-    </p>
-    <p class="mt-4 max-w-2xl leading-7 text-mute">
-      Right now: founding engineer at
-      <a href="https://anaxrep.com/">ANAX</a>, and
-      <a href="https://techprufer.com/">TechPrufer</a>
-      as the public side product. Based in India. Open to relocate for a
-      forward-deployed / AI deployment seat.
-    </p>
-    <p class="mt-6 flex flex-wrap gap-x-4 gap-y-2">
-      <a href={site.resume}>Resume</a>
-      <a href={site.linkedin}>LinkedIn</a>
-      <a href={site.github}>GitHub</a>
-      <a href={`mailto:${site.email}`}>Email</a>
-    </p>
-  </section>
-
-  <section
-    id="loop"
-    class="mt-16 scroll-mt-24 border-t border-rule pt-12"
-  >
-    <h2 class="text-sm font-medium tracking-wide text-mute">How I work</h2>
-    <p class="mt-3 max-w-2xl leading-7">
-      Same loop on every product: discovery, prototype, production, then write
-      it down. That is the FDE job I am optimizing for.
-    </p>
-    <ol class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {
-        loop.map((step) => (
-          <li class="border border-rule p-4">
-            <p class="mono text-xs text-mute">{step.n}</p>
-            <p class="mt-2 font-medium tracking-tight">{step.title}</p>
-            <p class="mt-2 text-sm leading-6 text-mute">{step.body}</p>
-          </li>
-        ))
-      }
-    </ol>
-  </section>
-
-  <section id="work" class="mt-16 scroll-mt-24 border-t border-rule pt-12">
-    <h2 class="text-sm font-medium tracking-wide text-mute">Products I ship</h2>
-    <p class="mt-3 max-w-2xl leading-7">
-      Work seats first, then products I own. Each card is a live system, not a
-      stack list.
-    </p>
-
-    <div class="mt-8 grid gap-5 sm:grid-cols-2">
-      {featured.map((product) => <ProductCard product={product} />)}
-    </div>
-    <div class="mt-5 grid gap-5 sm:grid-cols-2">
-      {rest.map((product) => <ProductCard product={product} />)}
-    </div>
-  </section>
-
-  <section
-    id="activity"
-    class="mt-16 scroll-mt-24 border-t border-rule pt-12"
-  >
-    <h2 class="text-sm font-medium tracking-wide text-mute">
-      Recent public GitHub
-    </h2>
-    {
-      prs.length === 0 ? (
-        <p class="mt-6 text-mute">
-          No public pull requests on this build. See
-          <a href={site.github}>{site.githubUser}</a>.
+  <header id="top" class="scroll-blur-out frame-column pt-16 pb-14 md:pt-20 md:pb-16">
+    <div class="flex flex-col gap-8 md:flex-row md:items-start md:gap-10">
+      <div class="flex min-w-0 flex-1 flex-col">
+        <h1 class="type-display text-foreground">{site.name}</h1>
+        <p class="mt-4 text-[19px] leading-relaxed text-muted-strong md:text-[21px]">
+          {site.role}
         </p>
-      ) : (
-        <ul class="mt-8 divide-y divide-rule border-y border-rule">
-          {prs.slice(0, 8).map((pr) => (
-            <li class="grid gap-1 py-3 sm:grid-cols-[5.5rem_1fr] sm:gap-6">
-              <span class="mono text-sm text-mute">{pr.state}</span>
-              <a href={pr.url} class="min-w-0">
-                <span class="mono text-sm text-mute">{pr.repo}</span>
-                <span class="ml-2">{pr.title}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      )
-    }
+        <div class="prose-reading mt-5">
+          <p>{site.tagline}</p>
+        </div>
+        <div class="mt-4 flex flex-wrap items-center gap-2">
+          <a class="btn btn-outline" href={site.github}>GitHub</a>
+          <a class="btn btn-outline" href={site.linkedin}>LinkedIn</a>
+          <a class="btn btn-outline" href={site.resume}>Resume</a>
+        </div>
+      </div>
+
+      <aside
+        aria-label="Status"
+        class="flex shrink-0 flex-col gap-5 border-t border-border pt-6 md:w-56 md:border-t-0 md:border-l md:pt-1 md:pl-6 lg:w-60"
+      >
+        <div class="group flex items-start gap-2.5">
+          <span
+            aria-hidden="true"
+            class="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand ring-4 ring-brand/15"
+          ></span>
+          <div class="w-fit">
+            <a
+              href={site.currentWork.href}
+              class="block font-mono text-xs leading-relaxed text-foreground underline decoration-border underline-offset-4 transition-colors group-hover:text-brand group-hover:decoration-brand"
+              data-open-train="anax"
+              >{site.currentWork.label}</a
+            >
+            <div aria-hidden="true" class="mt-2">
+              <div
+                class="hero-brace h-1.5 rounded-b-[5px] border-x border-b border-brand/50"
+              >
+              </div>
+              <div class="mx-auto h-1.5 w-px bg-brand/50"></div>
+            </div>
+            <p class="mt-1 text-center font-serif text-[13.5px] leading-snug text-muted-strong italic">
+              {site.currentWork.note}
+            </p>
+          </div>
+        </div>
+        <div>
+          <p class="type-label text-muted-foreground">Based in</p>
+          <p class="mt-1.5 font-mono text-xs leading-relaxed text-foreground">
+            {site.location}
+          </p>
+        </div>
+        <div>
+          <p class="type-label text-muted-foreground">Current stack</p>
+          <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+            {site.currentStack.map((item) => <span class="chip">{item}</span>)}
+          </div>
+        </div>
+        <div>
+          <p class="type-label text-muted-foreground">Ask an AI about me</p>
+          <div class="mt-2.5 flex flex-col items-start gap-y-2">
+            <a
+              class="font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              href={`https://chatgpt.com/?q=${llmsPrompt}`}
+              >ChatGPT</a
+            >
+            <a
+              class="font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              href={`https://claude.ai/new?q=${llmsPrompt}`}
+              >Claude</a
+            >
+            <a
+              class="font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              href={`https://www.perplexity.ai/search?q=${llmsPrompt}`}
+              >Perplexity</a
+            >
+          </div>
+        </div>
+      </aside>
+    </div>
+  </header>
+
+  <section id="work" class="scroll-mt-12">
+    <div class="rule-bleed" aria-hidden="true"></div>
+    <div class="frame-column frame-column-wide pt-10 pb-14 md:pt-12">
+      <h2 class="type-label text-muted-foreground">Work</h2>
+      <div
+        class="work-tablist mt-6 flex gap-6 border-b border-rule"
+        role="tablist"
+        aria-label="Experience or products"
+      >
+        <button
+          class="work-tab is-active"
+          type="button"
+          role="tab"
+          id="tab-experience"
+          aria-selected="true"
+          aria-controls="panel-experience"
+          data-work-tab="experience"
+        >
+          Experience
+        </button>
+        <button
+          class="work-tab"
+          type="button"
+          role="tab"
+          id="tab-products"
+          aria-selected="false"
+          aria-controls="products"
+          data-work-tab="products"
+        >
+          Products
+        </button>
+      </div>
+
+      <div class="work-split" data-work-track="experience">
+      <div
+        id="panel-experience"
+        class="is-active"
+        role="tabpanel"
+        aria-labelledby="tab-experience"
+        data-work-panel="experience"
+      >
+        <h3 class="work-split-heading type-label text-muted-foreground">Experience</h3>
+        <ol class="work-track mt-8 lg:mt-0">
+          {
+            experience.map((job, index) => (
+              <li class="work-car" style={`--i: ${index}`} id={job.id}>
+                <button
+                  type="button"
+                  class="work-car-hit"
+                  data-open-train={job.id}
+                  data-train-car
+                >
+                  <span class="work-car-stop" aria-hidden="true"></span>
+                  <p class="type-meta text-muted-foreground">{job.period}</p>
+                  <h3 class="type-item-title mt-1">
+                    {job.role} at <span class="text-brand">{job.name}</span>
+                  </h3>
+                  <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {job.summary}
+                  </p>
+                  <ul class="mt-3 space-y-1.5 text-sm leading-6 text-muted-strong">
+                    {job.shipped.map((line) => (
+                      <li class="pl-3 before:mr-2 before:text-muted-foreground before:content-['-']">
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                  <div class="mt-3 flex flex-wrap gap-1.5">
+                    {job.stack.map((tag) => (
+                      <span class="chip chip-quiet">{tag}</span>
+                    ))}
+                  </div>
+                </button>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+
+      <div
+        id="products"
+        role="tabpanel"
+        aria-labelledby="tab-products"
+        data-work-panel="products"
+      >
+        <h3 class="work-split-heading type-label text-muted-foreground">Products</h3>
+        <p class="mt-6 max-w-xl text-sm leading-6 text-muted-foreground lg:mt-0">
+          GripGrams, TechPrufer, Equal Collective. Click a car to open it on the right.
+        </p>
+        <ol class="work-track work-track-products mt-6">
+          {
+            ownedProducts.map((product, index) => (
+              <li class="work-car" style={`--i: ${index}`} id={product.id}>
+                <button
+                  type="button"
+                  class="work-car-hit"
+                  data-open-train={product.id}
+                  data-train-car
+                >
+                  <span class="work-car-stop" aria-hidden="true"></span>
+                  <div class="flex flex-wrap items-baseline justify-between gap-2">
+                    <h3 class="type-item-title">{product.name}</h3>
+                    <span class="type-meta text-muted-foreground">{product.kindLabel}</span>
+                  </div>
+                  <p class="mt-1 type-meta text-muted-foreground">{product.period}</p>
+                  <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {product.summary}
+                  </p>
+                  <dl class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {product.metrics.map((m) => (
+                      <div>
+                        <dt class="font-mono text-sm">{m.value}</dt>
+                        <dd class="mt-0.5 text-xs text-muted-foreground">{m.label}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <p class="type-meta mt-4 text-brand">Board the train →</p>
+                </button>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+      </div>
+    </div>
+    <script>
+      const root = document.getElementById("work");
+      const tabs = root?.querySelectorAll<HTMLButtonElement>("[data-work-tab]");
+      const panels = root?.querySelectorAll<HTMLElement>("[data-work-panel]");
+      const track = root?.querySelector<HTMLElement>(".work-split");
+      const wide = window.matchMedia("(min-width: 64rem)");
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      function showTab(name: string) {
+        if (wide.matches) {
+          track?.setAttribute("data-work-track", "both");
+          panels?.forEach((panel) => panel.classList.add("is-active"));
+          return;
+        }
+        track?.setAttribute("data-work-track", name);
+        tabs?.forEach((tab) => {
+          const on = tab.dataset.workTab === name;
+          tab.classList.toggle("is-active", on);
+          tab.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        panels?.forEach((panel) => {
+          panel.classList.toggle("is-active", panel.dataset.workPanel === name);
+        });
+      }
+
+      function fromHash() {
+        if (wide.matches) {
+          showTab("experience");
+          return;
+        }
+        const hash = window.location.hash.replace("#", "");
+        if (
+          hash === "products" ||
+          hash === "gripgrams" ||
+          hash === "techprufer" ||
+          hash === "equal-collective"
+        ) {
+          showTab("products");
+        } else if (hash === "reading" || hash === "blogs" || hash === "designs") {
+          return;
+        } else {
+          showTab("experience");
+        }
+      }
+
+      tabs?.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          const name = tab.dataset.workTab ?? "experience";
+          showTab(name);
+          history.replaceState({}, "", name === "products" ? "#products" : "#work");
+        });
+      });
+
+      wide.addEventListener("change", fromHash);
+      window.addEventListener("hashchange", fromHash);
+      fromHash();
+
+      const cars = root?.querySelectorAll<HTMLElement>(".work-car") ?? [];
+      if (!reduce.matches) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-inview");
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.18 },
+        );
+        cars.forEach((car) => io.observe(car));
+      } else {
+        cars.forEach((car) => car.classList.add("is-inview"));
+      }
+    </script>
   </section>
 
-  <footer
-    id="contact"
-    class="mt-16 scroll-mt-24 border-t border-rule pt-12"
-  >
-    <h2 class="text-sm font-medium tracking-wide text-mute">Get in touch</h2>
-    <p class="mt-4 leading-7">
-      <a href={`mailto:${site.email}`}>{site.email}</a>
-      ·
-      <a href={site.linkedin}>LinkedIn</a>
-      ·
-      <a href={site.github}>GitHub</a>
-      ·
-      <a href={site.resume}>Resume</a>
-    </p>
-    <p class="mono mt-10 text-xs text-mute">
-      adhikram.com · static Astro · rebuilt on each git push
-    </p>
-  </footer>
+  <section id="loop" class="scroll-mt-12">
+    <div class="rule-bleed" aria-hidden="true"></div>
+    <div class="frame-column pt-10 pb-14 md:pt-12">
+      <h2 class="type-label text-muted-foreground">How I work</h2>
+      <p class="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
+        Same loop at ANAX, TechPrufer, Equal Collective, and GripGrams. Sit in the seat, then leave a number.
+      </p>
+      <ol class="loop-track mt-6 grid gap-4 sm:grid-cols-2">
+        {
+          loop.map((step) => (
+            <li class="loop-car rounded-xl border border-border bg-card p-4">
+              <p class="type-meta text-muted-foreground">{step.n}</p>
+              <p class="mt-2 type-item-title">{step.title}</p>
+              <p class="mt-2 text-sm leading-6 text-muted-foreground">{step.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section id="stack" class="scroll-mt-12">
+    <div class="rule-bleed" aria-hidden="true"></div>
+    <div class="frame-column pt-10 pb-14 md:pt-12">
+      <h2 class="type-label text-muted-foreground">Stacks I actually use</h2>
+      <p class="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
+        Daily product work, agents in the editor, the Media.net data plane, and the mobile stack for GripGrams.
+      </p>
+      <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {
+          stackGroups.map((group) => (
+            <div class="rounded-xl border border-border bg-card p-4">
+              <h3 class="type-label text-muted-foreground">{group.title}</h3>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                {group.items.map((item) => (
+                  <span class:list={[item.featured ? "chip" : "chip chip-quiet"]}>
+                    {item.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="reading" class="scroll-mt-12">
+    <div class="rule-bleed" aria-hidden="true"></div>
+    <div class="frame-column frame-column-wide pt-10 pb-14 md:pt-12">
+      <h2 class="type-label text-muted-foreground">Reading</h2>
+      <div
+        class="work-tablist mt-6 flex gap-6 border-b border-rule"
+        role="tablist"
+        aria-label="Blogs or designs"
+      >
+        <button
+          class="work-tab is-active"
+          type="button"
+          role="tab"
+          id="tab-blogs"
+          aria-selected="true"
+          aria-controls="blogs"
+          data-reading-tab="blogs"
+        >
+          Blogs
+        </button>
+        <button
+          class="work-tab"
+          type="button"
+          role="tab"
+          id="tab-designs"
+          aria-selected="false"
+          aria-controls="designs"
+          data-reading-tab="designs"
+        >
+          Designs
+        </button>
+      </div>
+
+      <div class="work-split" data-work-track="blogs">
+        <div
+          id="blogs"
+          class="is-active"
+          role="tabpanel"
+          aria-labelledby="tab-blogs"
+          data-work-panel="blogs"
+        >
+          <h3 class="work-split-heading type-label text-muted-foreground">Blogs</h3>
+          <p class="mt-6 max-w-xl text-sm leading-6 text-muted-foreground lg:mt-0">
+            Feature trails I follow on
+            {" "}
+            <a href={`${TECHPRUFER}/blogs`}>TechPrufer</a>.
+          </p>
+          <ol class="work-track mt-6">
+            {
+              blogTrails.map((trail, index) => (
+                <li class="work-car" style={`--i: ${index}`}>
+                  <a class="work-car-hit" href={trailHref(trail)}>
+                    <span class="work-car-stop" aria-hidden="true"></span>
+                    <p class="type-meta text-muted-foreground">{trail.company}</p>
+                    <h3 class="type-item-title mt-1">{trail.feature}</h3>
+                    <p class="type-meta mt-4 text-brand">Open trail on TechPrufer →</p>
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+
+        <div
+          id="designs"
+          role="tabpanel"
+          aria-labelledby="tab-designs"
+          data-work-panel="designs"
+        >
+          <h3 class="work-split-heading type-label text-muted-foreground">Designs</h3>
+          <p class="mt-6 max-w-xl text-sm leading-6 text-muted-foreground lg:mt-0">
+            System designs I marked solved on TechPrufer. Saved prompts sit under the cars.
+          </p>
+          <ol class="work-track work-track-products mt-6">
+            {
+              solvedDesigns.map((item, index) => (
+                <li class="work-car" style={`--i: ${index}`}>
+                  <a class="work-car-hit" href={designHref(item)}>
+                    <span class="work-car-stop" aria-hidden="true"></span>
+                    <div class="flex flex-wrap items-baseline justify-between gap-2">
+                      <h3 class="type-item-title">{item.title}</h3>
+                      <span class="type-meta text-muted-foreground">{item.company}</span>
+                    </div>
+                    <p class="type-meta mt-1 text-muted-foreground">{item.category}</p>
+                    <p class="type-meta mt-4 text-brand">Open on TechPrufer →</p>
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+          <p class="type-label mt-8 text-muted-foreground">Also saved</p>
+          <div class="mt-3 flex flex-wrap gap-1.5">
+            {
+              likedDesigns.map((item) => (
+                <a class="chip chip-quiet" href={designHref(item)}>
+                  {item.company}: {item.title}
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const root = document.getElementById("reading");
+      const tabs = root?.querySelectorAll<HTMLButtonElement>("[data-reading-tab]");
+      const panels = root?.querySelectorAll<HTMLElement>("[data-work-panel]");
+      const track = root?.querySelector<HTMLElement>(".work-split");
+      const wide = window.matchMedia("(min-width: 64rem)");
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      function showTab(name: string) {
+        if (wide.matches) {
+          track?.setAttribute("data-work-track", "both");
+          panels?.forEach((panel) => panel.classList.add("is-active"));
+          return;
+        }
+        track?.setAttribute("data-work-track", name);
+        tabs?.forEach((tab) => {
+          const on = tab.dataset.readingTab === name;
+          tab.classList.toggle("is-active", on);
+          tab.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        panels?.forEach((panel) => {
+          panel.classList.toggle("is-active", panel.dataset.workPanel === name);
+        });
+      }
+
+      function fromHash() {
+        if (wide.matches) {
+          showTab("blogs");
+          return;
+        }
+        const hash = window.location.hash.replace("#", "");
+        if (hash === "designs") showTab("designs");
+        else if (hash === "blogs" || hash === "reading") showTab("blogs");
+      }
+
+      tabs?.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          const name = tab.dataset.readingTab ?? "blogs";
+          showTab(name);
+          history.replaceState({}, "", name === "designs" ? "#designs" : "#reading");
+        });
+      });
+
+      wide.addEventListener("change", fromHash);
+      window.addEventListener("hashchange", fromHash);
+      fromHash();
+
+      const cars = root?.querySelectorAll<HTMLElement>(".work-car") ?? [];
+      if (!reduce.matches) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-inview");
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.18 },
+        );
+        cars.forEach((car) => io.observe(car));
+      } else {
+        cars.forEach((car) => car.classList.add("is-inview"));
+      }
+    </script>
+  </section>
+
+  <section id="about" class="scroll-mt-12">
+    <div class="rule-bleed" aria-hidden="true"></div>
+    <div class="frame-column pt-10 pb-14 md:pt-12">
+      <h2 class="type-label text-muted-foreground">About me</h2>
+      <div class="prose-reading mt-6">
+        <p>
+          {
+            site.aboutParts.map((part) =>
+              part.id ? (
+                <button
+                  type="button"
+                  class="about-mark"
+                  data-open-train={part.id}
+                >
+                  {part.t}
+                </button>
+              ) : (
+                part.t
+              ),
+            )
+          }
+        </p>
+      </div>
+      <p class="type-label mt-8 text-muted-foreground">Focus</p>
+      <div class="mt-3 flex flex-wrap gap-1.5">
+        {site.focus.map((item) => <span class="chip chip-quiet">{item}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section id="ask" class="scroll-mt-12">
+    <div class="rule-bleed" aria-hidden="true"></div>
+    <div class="frame-column pt-10 pb-14 md:pt-12">
+      <h2 class="type-label text-muted-foreground">Ask an AI</h2>
+      <p class="mt-4 max-w-xl text-[17px] leading-7 text-muted-strong">
+        This site publishes everything about me as plain text at
+        <a class="underline decoration-border underline-offset-4" href="/llms.txt"
+          >/llms.txt</a
+        >. Hand that to any assistant.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a class="btn btn-outline" href={`https://chatgpt.com/?q=${llmsPrompt}`}
+          >ChatGPT</a
+        >
+        <a class="btn btn-outline" href={`https://claude.ai/new?q=${llmsPrompt}`}
+          >Claude</a
+        >
+        <a
+          class="btn btn-outline"
+          href={`https://www.perplexity.ai/search?q=${llmsPrompt}`}>Perplexity</a
+        >
+      </div>
+    </div>
+  </section>
+
+  <section id="activity" class="scroll-mt-12">
+    <div class="rule-bleed" aria-hidden="true"></div>
+    <div class="frame-column pt-10 pb-14 md:pt-12">
+      <h2 class="type-label text-muted-foreground">GitHub</h2>
+      {
+        contrib ? (
+          <div class="mt-6">
+            <p class="font-mono text-sm">
+              Total contributions ({year}): {contrib.total.toLocaleString()}
+            </p>
+            <div class="heat-map mt-4">
+              {
+                weeks.map((week) => (
+                  <div class="heat-week">
+                    {week.map((day) =>
+                      day.count < 0 ? (
+                        <div class="heat-cell opacity-0" />
+                      ) : (
+                        <div
+                          class:list={["heat-cell", heatLevel(day.count)]}
+                          title={`${day.count} on ${day.date}`}
+                        />
+                      ),
+                    )}
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        ) : null
+      }
+      <p class="mt-8 max-w-2xl text-sm leading-6 text-muted-foreground">
+        Open-source software I forked and used. See
+        {" "}
+        <a href={site.github}>{site.githubUser}</a>.
+      </p>
+      <ul class="mt-6 divide-y divide-rule border-y border-rule">
+        {
+          ossRepos.map((repo) => (
+            <li class="grid gap-1 py-3 sm:grid-cols-[8.5rem_1fr] sm:gap-6">
+              <span class="type-meta text-muted-foreground">fork</span>
+              <div class="min-w-0">
+                <a href={repo.url}>
+                  <span class="type-meta text-muted-foreground">Adhikram/{repo.name}</span>
+                </a>
+                <p class="mt-1 text-sm leading-6 text-muted-strong">{repo.note}</p>
+                <p class="type-meta mt-1 text-muted-foreground">
+                  upstream{" "}
+                  <a href={repo.upstreamUrl}>{repo.upstream}</a>
+                </p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mt-12 font-mono text-[11px] text-muted-foreground">{site.mark}</p>
+    </div>
+  </section>
 </Layout>

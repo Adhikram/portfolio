@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import WorkTrain from "../components/WorkTrain.astro";
 import { site } from "../data/site";
 
 type Props = {
@@ -10,6 +11,11 @@ type Props = {
 const title = Astro.props.title ?? site.title;
 const description = Astro.props.description ?? site.description;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const home = Astro.url.pathname === "/" ? "#top" : "/";
+const experienceHref = Astro.url.pathname === "/" ? "#work" : "/#work";
+const productsHref = Astro.url.pathname === "/" ? "#products" : "/#products";
+const aboutHref = Astro.url.pathname === "/" ? "#about" : "/#about";
+const readingHref = Astro.url.pathname === "/" ? "#reading" : "/#reading";
 ---
 
 <!doctype html>
@@ -21,32 +27,66 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="color-scheme" content="dark light" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
     <title>{title}</title>
+    <script is:inline>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("theme-preference");
+          var theme = stored ? stored : "system";
+          if (theme === "system") {
+            theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          }
+          document.documentElement.classList.add(theme);
+          document.documentElement.style.colorScheme = theme;
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
-    <header
-      class="sticky top-0 z-10 border-b border-rule bg-paper/85 backdrop-blur-md"
+    <a
+      href="#main-content"
+      class="btn btn-primary absolute left-4 top-4 z-100 -translate-y-20 focus:translate-y-0"
+      >Skip to content</a
     >
-      <div
-        class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3"
-      >
-        <a href="#top" class="mono text-sm text-ink no-underline hover:text-accent"
-          >{site.name}</a
-        >
-        <nav class="mono flex flex-wrap gap-x-4 gap-y-1 text-xs text-mute">
-          <a href="#work">Work</a>
-          <a href="#loop">Loop</a>
-          <a href="#activity">GitHub</a>
-          <a href="#contact">Contact</a>
+    <div class="page-frame-outer flex min-h-dvh flex-col">
+      <header class="frame-chrome">
+        <a href={home} class="signature" aria-label={site.name} title={site.mark}>
+          <span class="signature-am" aria-hidden="true">am</span>
+          <span class="signature-name">{site.name}</span>
+        </a>
+        <nav class="site-links" aria-label="Site">
+          <a href={experienceHref}>Experience</a>
+          <a href={productsHref}>Products</a>
+          <a href={readingHref}>Reading</a>
+          <a href={aboutHref}>About</a>
+          <button type="button" id="theme-toggle" aria-label="Toggle color theme">
+            Theme
+          </button>
         </nav>
-      </div>
-    </header>
-    <div class="mx-auto max-w-5xl px-5 py-12 sm:py-16">
-      <slot />
+      </header>
+      <main id="main-content" class="page-frame relative flex-1" tabindex="-1">
+        <slot />
+      </main>
+      <WorkTrain />
     </div>
+    <script is:inline>
+      document.getElementById("theme-toggle")?.addEventListener("click", function () {
+        var root = document.documentElement;
+        var next = root.classList.contains("dark") ? "light" : "dark";
+        root.classList.remove("light", "dark");
+        root.classList.add(next);
+        root.style.colorScheme = next;
+        try {
+          localStorage.setItem("theme-preference", next);
+        } catch (e) {}
+      });
+    </script>
   </body>
 </html>

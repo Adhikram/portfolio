@@ -1,0 +1,311 @@
+---
+import { productPath, products } from "../data/site";
+import { techpruferSurfaces } from "../data/techprufer";
+
+const trainItems = products.map((item) => ({
+  id: item.id,
+  name: item.name,
+  role: item.role,
+  period: item.period,
+  kindLabel: item.kindLabel,
+  bucket: item.bucket,
+  url: item.url ?? null,
+  page: item.bucket === "product" ? productPath(item.id) : null,
+  summary: item.summary,
+  detail: item.detail,
+  metrics: item.metrics,
+  shipped: item.shipped,
+  stack: item.stack,
+  trail:
+    item.id === "techprufer"
+      ? techpruferSurfaces.map((surface) => ({
+          slug: surface.slug,
+          label: surface.label,
+          headline: surface.headline,
+          summary: surface.summary,
+        }))
+      : [],
+}));
+---
+
+<div
+  class="work-train"
+  id="work-train"
+  hidden
+  inert
+  aria-hidden="true"
+>
+  <button type="button" class="work-train-veil" data-train-close tabindex="-1" aria-label="Close"></button>
+  <aside
+    class="work-train-cars"
+    id="work-train-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="work-train-title"
+  >
+    <div class="work-train-rail" aria-hidden="true"></div>
+    <header class="work-train-head">
+      <p class="type-label text-muted-foreground" id="work-train-kicker"></p>
+      <button type="button" class="work-train-x" id="work-train-close" data-train-close aria-label="Close train">
+        Close
+      </button>
+    </header>
+    <div class="work-train-scroll" id="work-train-body"></div>
+  </aside>
+</div>
+
+<script type="application/json" id="work-train-data" set:html={JSON.stringify(trainItems)} />
+
+<script>
+  const dataNode = document.getElementById("work-train-data");
+  const trainItems = JSON.parse(dataNode?.textContent || "[]");
+  const root = document.getElementById("work-train");
+  const panel = document.getElementById("work-train-panel");
+  const body = document.getElementById("work-train-body");
+  const kicker = document.getElementById("work-train-kicker");
+  const closeBtn = document.getElementById("work-train-close");
+
+  if (root && panel && body && kicker) {
+    const byId = Object.fromEntries(trainItems.map((item) => [item.id, item]));
+    let lastFocus = null;
+    let originEl = null;
+    let flipAnim = null;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const ease = "cubic-bezier(0.16, 1, 0.3, 1)";
+
+    function clearBoarding() {
+      document.querySelectorAll(".work-car.is-boarding").forEach((el) => {
+        el.classList.remove("is-boarding");
+      });
+    }
+
+    function playFlip(fromEl, reverse) {
+      if (reduce.matches) {
+        if (!reverse) panel.classList.add("is-settled");
+        return null;
+      }
+      const from = fromEl?.getBoundingClientRect();
+      const to = panel.getBoundingClientRect();
+      flipAnim?.cancel();
+      if (!from || to.width < 8 || to.height < 8 || from.width < 8) {
+        flipAnim = panel.animate(
+          reverse
+            ? [{ transform: "none" }, { transform: "translateX(104%)" }]
+            : [{ transform: "translateX(104%)" }, { transform: "none" }],
+          { duration: 380, easing: ease, fill: "forwards" },
+        );
+        if (!reverse) {
+          flipAnim.finished.then(() => panel.classList.add("is-settled")).catch(() => {});
+        }
+        return flipAnim;
+      }
+      const dx = from.left - to.left;
+      const dy = from.top - to.top;
+      const sx = Math.max(0.12, from.width / to.width);
+      const sy = Math.max(0.08, from.height / to.height);
+      const keyframes = reverse
+        ? [
+            { transform: "none", opacity: 1 },
+            { transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, opacity: 0.4 },
+          ]
+        : [
+            { transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, opacity: 0.75 },
+            { transform: "none", opacity: 1 },
+          ];
+      if (reverse) panel.classList.remove("is-settled");
+      flipAnim = panel.animate(keyframes, {
+        duration: 460,
+        easing: ease,
+        fill: "forwards",
+      });
+      if (!reverse) {
+        flipAnim.finished
+          .then(() => {
+            flipAnim?.commitStyles();
+            flipAnim?.cancel();
+            panel.style.transform = "";
+            panel.style.opacity = "";
+            panel.classList.add("is-settled");
+          })
+          .catch(() => {});
+      }
+      return flipAnim;
+    }
+
+    function esc(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function car(delay, inner) {
+      return `<article class="train-car" style="--car-delay:${delay}ms">${inner}</article>`;
+    }
+
+    function render(item) {
+      const cars = [];
+      let delay = 40;
+      cars.push(
+        car(
+          delay,
+          `<h2 class="type-display" id="work-train-title">${esc(item.name)}</h2>
+           <p class="mt-2 text-[17px] text-muted-strong">${esc(item.role)}</p>
+           <p class="type-meta mt-2 text-muted-foreground">${esc(item.kindLabel)} · ${esc(item.period)}</p>`,
+        ),
+      );
+      delay += 45;
+      cars.push(car(delay, `<p class="text-[16px] leading-7 text-muted-strong">${esc(item.summary)}</p>`));
+      if (item.metrics.length) {
+        delay += 45;
+        cars.push(
+          car(
+            delay,
+            `<dl class="grid grid-cols-2 gap-3">${item.metrics
+              .map(
+                (m) =>
+                  `<div><dt class="font-mono text-base">${esc(m.value)}</dt><dd class="mt-0.5 text-xs text-muted-foreground">${esc(m.label)}</dd></div>`,
+              )
+              .join("")}</dl>`,
+          ),
+        );
+      }
+      for (const para of item.detail) {
+        delay += 45;
+        cars.push(car(delay, `<p class="text-[15px] leading-7 text-muted-foreground">${esc(para)}</p>`));
+      }
+      if (item.shipped.length) {
+        delay += 45;
+        cars.push(
+          car(
+            delay,
+            `<p class="type-label text-muted-foreground">Shipped</p>
+             <ul class="mt-3 space-y-1.5 text-sm leading-6 text-muted-strong">${item.shipped
+               .map(
+                 (line) =>
+                   `<li class="pl-3 before:mr-2 before:text-muted-foreground before:content-['-']">${esc(line)}</li>`,
+               )
+               .join("")}</ul>`,
+          ),
+        );
+      }
+      if (item.stack.length) {
+        delay += 45;
+        cars.push(
+          car(
+            delay,
+            `<p class="type-label text-muted-foreground">Stack</p>
+             <div class="mt-3 flex flex-wrap gap-1.5">${item.stack
+               .map((tag) => `<span class="chip chip-quiet">${esc(tag)}</span>`)
+               .join("")}</div>`,
+          ),
+        );
+      }
+      if (item.trail.length) {
+        delay += 45;
+        cars.push(
+          car(
+            delay,
+            `<p class="type-label text-muted-foreground">Feature trail</p>
+             <ol class="mt-3 space-y-3">${item.trail
+               .map(
+                 (surface, i) =>
+                   `<li><a class="block rounded-lg border border-border p-3 hover:border-brand/40" href="/products/techprufer/${esc(surface.slug)}"><p class="type-meta text-muted-foreground">${String(i + 1).padStart(2, "0")} · ${esc(surface.label)}</p><p class="mt-1 text-sm">${esc(surface.headline)}</p></a></li>`,
+               )
+               .join("")}</ol>`,
+          ),
+        );
+      }
+      delay += 45;
+      const links = [];
+      if (item.page) {
+        links.push(`<a class="btn btn-outline" href="${esc(item.page)}">Full page</a>`);
+      }
+      if (item.url) {
+        links.push(
+          `<a class="btn btn-accent" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">Visit ${esc(item.name)} ↗</a>`,
+        );
+      }
+      if (links.length) cars.push(car(delay, `<div class="flex flex-wrap gap-2">${links.join("")}</div>`));
+
+      kicker.textContent = item.bucket === "product" ? "Product" : "Company";
+      body.innerHTML = cars.join("");
+    }
+
+    function setOpen(open, id, origin) {
+      if (open) {
+        const item = id ? byId[id] : null;
+        if (!item) return;
+        lastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        originEl = origin?.closest?.("[data-train-car]") ?? origin ?? null;
+        clearBoarding();
+        originEl?.closest(".work-car")?.classList.add("is-boarding");
+        render(item);
+        panel.classList.remove("is-settled");
+        root.hidden = false;
+        root.removeAttribute("inert");
+        root.setAttribute("aria-hidden", "false");
+        document.documentElement.dataset.trainOpen = "true";
+        document.body.style.overflow = "hidden";
+        requestAnimationFrame(() => {
+          root.classList.add("is-open");
+          requestAnimationFrame(() => {
+            playFlip(originEl, false);
+            closeBtn?.focus();
+          });
+        });
+        const url = new URL(window.location.href);
+        url.searchParams.set("train", item.id);
+        history.replaceState({}, "", url);
+        return;
+      }
+
+      document.documentElement.removeAttribute("data-train-open");
+      document.body.style.overflow = "";
+      const url = new URL(window.location.href);
+      url.searchParams.delete("train");
+      history.replaceState({}, "", url);
+      const done = () => {
+        flipAnim?.cancel();
+        panel.style.transform = "";
+        panel.style.opacity = "";
+        root.classList.remove("is-open");
+        root.hidden = true;
+        root.setAttribute("inert", "");
+        root.setAttribute("aria-hidden", "true");
+        body.innerHTML = "";
+        panel.classList.remove("is-settled");
+        clearBoarding();
+      };
+      const anim = playFlip(originEl, true);
+      if (anim) anim.finished.then(done).catch(done);
+      else done();
+      lastFocus?.focus?.();
+    }
+
+    document.addEventListener("click", (event) => {
+      const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+      if (!target) return;
+      const close = target.closest("[data-train-close]");
+      if (close) {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+      const open = target.closest("[data-open-train]");
+      if (!open) return;
+      event.preventDefault();
+      setOpen(true, open.getAttribute("data-open-train"), open);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && document.documentElement.dataset.trainOpen === "true") {
+        setOpen(false);
+      }
+    });
+
+    const initial = new URLSearchParams(window.location.search).get("train");
+    if (initial && byId[initial]) setOpen(true, initial);
+  }
+</script>

@@ -1,0 +1,81 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { techpruferSurfaces } from "../../../data/techprufer";
+import { site } from "../../../data/site";
+
+export function getStaticPaths() {
+  return techpruferSurfaces.map((surface) => ({
+    params: { slug: surface.slug },
+    props: { surface },
+  }));
+}
+
+const { surface } = Astro.props;
+const others = techpruferSurfaces.filter((item) => item.slug !== surface.slug);
+---
+
+<Layout title={`${surface.label} · TechPrufer`} description={surface.summary}>
+  <article class="frame-column pt-16 pb-20 md:pt-20">
+    <p class="type-label text-muted-foreground">
+      <a href="/products/techprufer" class="hover:text-foreground">TechPrufer</a>
+      <span class="mx-2 opacity-40">/</span>
+      {surface.label}
+    </p>
+    <p class="type-meta mt-6 text-brand">{surface.label}</p>
+    <h1 class="type-display mt-3">{surface.headline}</h1>
+    <p class="mt-5 max-w-2xl text-[19px] leading-relaxed text-muted-strong">
+      {surface.summary}
+    </p>
+
+    <ol class="relative ml-1 mt-12 space-y-10 border-l border-border pl-6">
+      {
+        surface.features.map((feature, index) => (
+          <li class="relative space-y-2">
+            <span
+              aria-hidden="true"
+              class="absolute top-2 left-[-28.5px] size-2 rounded-full border border-border bg-brand"
+            />
+            <p class="type-meta text-muted-foreground">
+              {String(index + 1).padStart(2, "0")} · {feature.eyebrow}
+            </p>
+            <h2 class="type-item-title">{feature.title}</h2>
+            <ul class="space-y-1.5 text-sm leading-6 text-muted-strong">
+              {feature.points.map((point) => (
+                <li class="pl-3 before:mr-2 before:text-muted-foreground before:content-['-']">
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="mt-10 flex flex-wrap gap-2">
+      <a class="btn btn-accent" href={surface.href} target="_blank" rel="noopener noreferrer">
+        Open on TechPrufer ↗
+      </a>
+      <a class="btn btn-outline" href="/products/techprufer">Back to trail</a>
+    </p>
+
+    <section class="mt-16 border-t border-rule pt-10">
+      <h2 class="type-label text-muted-foreground">Rest of the trail</h2>
+      <ol class="mt-5 space-y-3">
+        {
+          others.map((item) => (
+            <li>
+              <a
+                class="group block rounded-xl border border-border bg-card p-4 hover:border-brand/40"
+                href={`/products/techprufer/${item.slug}`}
+              >
+                <span class="type-meta text-brand">{item.label}</span>
+                <p class="mt-1 type-item-title group-hover:text-brand">{item.headline}</p>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+    <p class="mt-12 font-mono text-[11px] text-muted-foreground">{site.mark}</p>
+  </article>
+</Layout>
