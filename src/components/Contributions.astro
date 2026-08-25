@@ -1,0 +1,206 @@
+---
+import { ossRepos, site } from "../data/site";
+import type { ContributionYear } from "../lib/github";
+
+type Props = {
+  years: ContributionYear[];
+};
+
+const { years } = Astro.props;
+const orgs = site.githubOrgs;
+---
+
+<section id="github" class="scroll-mt-12">
+  <div class="rule-bleed" aria-hidden="true"></div>
+  <div class="frame-column frame-column-wide pt-10 pb-14 md:pt-12">
+    <h2 class="type-label text-muted-foreground">GitHub</h2>
+    {
+      years.length > 0 ? (
+        <div class="contrib-shell mt-6">
+          <div class="contrib-card">
+            {
+              years.map((year, index) => (
+                <div
+                  class:list={["contrib-year", index === 0 && "is-active"]}
+                  data-contrib-year={year.year}
+                  hidden={index !== 0}
+                >
+                  <div class="contrib-head">
+                    <p class="contrib-count">
+                      <svg class="contrib-icon" viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M4.75 0a.75.75 0 0 1 .75.75V2h5V.75a.75.75 0 0 1 1.5 0V2h1.25c.966 0 1.75.784 1.75 1.75v10.5A1.75 1.75 0 0 1 13.25 16H2.75A1.75 1.75 0 0 1 1 14.25V3.75C1 2.784 1.784 2 2.75 2H4V.75A.75.75 0 0 1 4.75 0ZM2.5 7.5v6.75c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25V7.5Zm10.75-4H2.75a.25.25 0 0 0-.25.25V6h11V3.75a.25.25 0 0 0-.25-.25Z" />
+                      </svg>
+                      <span>
+                        <span class="font-medium tabular-nums">
+                          {year.total.toLocaleString()}
+                        </span>{" "}
+                        contributions {year.caption}
+                      </span>
+                    </p>
+                    <a class="contrib-link" href={site.github}>
+                      <svg class="contrib-icon" viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z" />
+                      </svg>
+                      View on GitHub
+                    </a>
+                  </div>
+                  <div class="contrib-scroll">
+                    <div
+                      class="contrib-chart"
+                      style={`--weeks: ${year.weeks.length}`}
+                      role="img"
+                      aria-label={`${year.total.toLocaleString()} contributions ${year.caption}`}
+                    >
+                      <div class="contrib-months" aria-hidden="true">
+                        {year.months.map((month) => (
+                          <span style={`grid-column: ${month.index + 1}`}>
+                            {month.label}
+                          </span>
+                        ))}
+                      </div>
+                      <div class="contrib-body">
+                        <div class="contrib-dows" aria-hidden="true">
+                          <span></span>
+                          <span>Mon</span>
+                          <span></span>
+                          <span>Wed</span>
+                          <span></span>
+                          <span>Fri</span>
+                          <span></span>
+                        </div>
+                        <div class="contrib-weeks">
+                          {year.weeks.map((week) => (
+                            <div class="contrib-week">
+                              {week.map((day) =>
+                                day ? (
+                                  <div
+                                    class={`contrib-cell heat-${day.level}`}
+                                    title={`${day.count} contribution${day.count === 1 ? "" : "s"} on ${day.date}`}
+                                  />
+                                ) : (
+                                  <div class="contrib-cell is-empty" />
+                                ),
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="contrib-legend">
+                    <a
+                      class="contrib-link"
+                      href="https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/managing-contribution-settings-on-your-profile/why-are-my-contributions-not-showing-up-on-my-profile"
+                    >
+                      <svg class="contrib-icon" viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.92 6.085h.001a.749.749 0 1 1-1.342-.67c.169-.339.436-.596.782-.759.346-.162.788-.236 1.23-.215.199.009.41.042.615.111.205.07.404.179.579.332.174.154.333.345.45.575.117.23.176.495.176.775 0 .47-.113.764-.354.996-.221.21-.514.364-.862.45-.35.086-.73.14-1.057.166a.247.247 0 0 0-.199.248c.005.127.01.255.01.255h1.5s-.008-.128-.01-.255c-.02-.174.1-.32.27-.36.35-.087.703-.22.973-.477.27-.257.404-.686.404-1.237 0-.172-.03-.327-.09-.445a.88.88 0 0 0-.252-.313.94.94 0 0 0-.364-.2.94.94 0 0 0-.42-.068c-.27-.012-.536.032-.74.127-.2.094-.35.23-.45.429a.25.25 0 0 0 .03.248.247.247 0 0 0 .247.09ZM8.75 11.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                      </svg>
+                      Learn how we count contributions
+                    </a>
+                    <p class="contrib-scale" aria-hidden="true">
+                      Less
+                      <span class="contrib-cell heat-0"></span>
+                      <span class="contrib-cell heat-1"></span>
+                      <span class="contrib-cell heat-2"></span>
+                      <span class="contrib-cell heat-3"></span>
+                      <span class="contrib-cell heat-4"></span>
+                      More
+                    </p>
+                  </div>
+                </div>
+              ))
+            }
+
+            <div class="contrib-orgs">
+              {
+                orgs.map((org) => (
+                  <a class="contrib-org" href={org.href}>
+                    <img
+                      src={org.avatar}
+                      alt=""
+                      width="20"
+                      height="20"
+                    />
+                    @{org.login}
+                  </a>
+                ))
+              }
+            </div>
+          </div>
+
+          <ol class="contrib-years" aria-label="Contribution year">
+            {
+              years.map((year, index) => (
+                <li>
+                  <button
+                    type="button"
+                    class:list={["contrib-year-btn", index === 0 && "is-active"]}
+                    data-year={year.year}
+                    aria-pressed={index === 0 ? "true" : "false"}
+                  >
+                    {year.year}
+                  </button>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      ) : null
+    }
+
+    <h3 class="type-label mt-10 text-muted-foreground">Open source</h3>
+    <p class="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+      Forks I use in production. Also on
+      {" "}
+      <a href={site.github}>{site.githubUser}</a>.
+    </p>
+    <ul class="mt-6 divide-y divide-rule border-y border-rule">
+      {
+        ossRepos.map((repo) => (
+          <li class="grid gap-1 py-3 sm:grid-cols-[8.5rem_1fr] sm:gap-6">
+            <span class="type-meta text-muted-foreground">fork</span>
+            <div class="min-w-0">
+              <a href={repo.url}>
+                <span class="type-meta text-muted-foreground">Adhikram/{repo.name}</span>
+              </a>
+              <p class="mt-1 text-sm leading-6 text-muted-strong">{repo.note}</p>
+              <p class="type-meta mt-1 text-muted-foreground">
+                upstream{" "}
+                <a href={repo.upstreamUrl}>{repo.upstream}</a>
+              </p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+  {
+    years.length > 0 ? (
+      <script>
+        const root = document.getElementById("github");
+        const panels = root?.querySelectorAll<HTMLElement>("[data-contrib-year]");
+        const buttons = root?.querySelectorAll<HTMLButtonElement>("[data-year]");
+
+        function show(year: string) {
+          panels?.forEach((panel) => {
+            const on = panel.dataset.contribYear === year;
+            panel.classList.toggle("is-active", on);
+            panel.hidden = !on;
+          });
+          buttons?.forEach((button) => {
+            const on = button.dataset.year === year;
+            button.classList.toggle("is-active", on);
+            button.setAttribute("aria-pressed", on ? "true" : "false");
+          });
+        }
+
+        buttons?.forEach((button) => {
+          button.addEventListener("click", () => {
+            const year = button.dataset.year;
+            if (year) show(year);
+          });
+        });
+      </script>
+    ) : null
+  }
+</section>

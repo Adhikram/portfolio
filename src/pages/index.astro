@@ -1,67 +1,61 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { experience, loop, ossRepos, ownedProducts, site, stackGroups } from "../data/site";
+import Contributions from "../components/Contributions.astro";
+import Mark from "../components/Mark.astro";
+import { experience, loop, ownedProducts, site, stackGroups } from "../data/site";
 import {
   TECHPRUFER,
   blogTrails,
-  designHref,
-  likedDesigns,
-  solvedDesigns,
   trailHref,
 } from "../data/reading";
-import { fetchContributionYear } from "../lib/github";
+import { fetchContributionHistory } from "../lib/github";
 
-const year = new Date().getUTCFullYear();
-const contrib = await fetchContributionYear(site.githubUser, year);
+const contribYears = await fetchContributionHistory(site.githubUser);
 
 const llmsPrompt = encodeURIComponent(
   `Read https://adhikram.com/llms.txt and tell me who Adhikram Maitra is, what he has built, and what his tech stack is.`,
 );
-
-function heatLevel(count: number) {
-  if (count <= 0) return "heat-0";
-  if (count <= 2) return "heat-1";
-  if (count <= 6) return "heat-2";
-  if (count <= 12) return "heat-3";
-  return "heat-4";
-}
-
-const weeks: { date: string; count: number }[][] = [];
-if (contrib) {
-  const days = [...contrib.days];
-  const first = days[0] ? new Date(`${days[0].date}T00:00:00Z`) : null;
-  const pad = first ? first.getUTCDay() : 0;
-  const padded = [
-    ...Array.from({ length: pad }, () => ({ date: "", count: -1 })),
-    ...days,
-  ];
-  for (let i = 0; i < padded.length; i += 7) {
-    weeks.push(padded.slice(i, i + 7));
-  }
-}
 ---
 
 <Layout>
-  <header id="top" class="scroll-blur-out frame-column pt-16 pb-14 md:pt-20 md:pb-16">
-    <div class="flex flex-col gap-8 md:flex-row md:items-start md:gap-10">
+  <header id="top" class="scroll-blur-out frame-column frame-column-wide pt-8 pb-12 md:pt-20 md:pb-16">
+    <div class="flex flex-col gap-8 md:flex-row md:items-start md:gap-12">
       <div class="flex min-w-0 flex-1 flex-col">
         <h1 class="type-display text-foreground">{site.name}</h1>
         <p class="mt-4 text-[19px] leading-relaxed text-muted-strong md:text-[21px]">
           {site.role}
         </p>
-        <div class="prose-reading mt-5">
-          <p>{site.tagline}</p>
+        <div id="about" class="prose-reading mt-5 scroll-mt-12">
+          <p>
+            {
+              site.aboutParts.map((part) =>
+                part.id ? (
+                  <button type="button" class="about-mark" data-open-train={part.id}>
+                    {part.t}
+                  </button>
+                ) : (
+                  part.t
+                ),
+              )
+            }
+          </p>
         </div>
-        <div class="mt-4 flex flex-wrap items-center gap-2">
-          <a class="btn btn-outline" href={site.github}>GitHub</a>
-          <a class="btn btn-outline" href={site.linkedin}>LinkedIn</a>
-          <a class="btn btn-outline" href={site.resume}>Resume</a>
+        <div class="mt-6 flex flex-wrap items-center gap-2">
+          <a class="btn btn-outline" href={site.github}>
+            <Mark name="GitHub" />GitHub
+          </a>
+          <a class="btn btn-outline" href={site.linkedin}>
+            <Mark name="LinkedIn" />LinkedIn
+          </a>
+          <a class="btn btn-outline" href={site.resume}>
+            <Mark name="Resume" />Resume
+          </a>
         </div>
       </div>
 
       <aside
         aria-label="Status"
-        class="flex shrink-0 flex-col gap-5 border-t border-border pt-6 md:w-56 md:border-t-0 md:border-l md:pt-1 md:pl-6 lg:w-60"
+        class="flex shrink-0 flex-col gap-5 border-t border-border pt-6 md:w-80 md:border-t-0 md:border-l md:pt-1 md:pl-8 lg:w-96"
       >
         <div class="group flex items-start gap-2.5">
           <span
@@ -95,27 +89,32 @@ if (contrib) {
         </div>
         <div>
           <p class="type-label text-muted-foreground">Current stack</p>
-          <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
-            {site.currentStack.map((item) => <span class="chip">{item}</span>)}
+          <div class="hero-stack mt-2.5">
+            {site.currentStack.map((item) => (
+              <span class="chip">
+                <Mark name={item} />
+                {item}
+              </span>
+            ))}
           </div>
         </div>
         <div>
           <p class="type-label text-muted-foreground">Ask an AI about me</p>
           <div class="mt-2.5 flex flex-col items-start gap-y-2">
             <a
-              class="font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               href={`https://chatgpt.com/?q=${llmsPrompt}`}
-              >ChatGPT</a
+              ><Mark name="ChatGPT" />ChatGPT</a
             >
             <a
-              class="font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               href={`https://claude.ai/new?q=${llmsPrompt}`}
-              >Claude</a
+              ><Mark name="Claude" />Claude</a
             >
             <a
-              class="font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               href={`https://www.perplexity.ai/search?q=${llmsPrompt}`}
-              >Perplexity</a
+              ><Mark name="Perplexity" />Perplexity</a
             >
           </div>
         </div>
@@ -176,6 +175,9 @@ if (contrib) {
                   data-train-car
                 >
                   <span class="work-car-stop" aria-hidden="true"></span>
+                  <div class="flex items-start gap-3">
+                    <img class="work-logo" src={job.logo} alt="" width="40" height="40" />
+                    <div class="min-w-0 flex-1">
                   <p class="type-meta text-muted-foreground">{job.period}</p>
                   <h3 class="type-item-title mt-1">
                     {job.role} at <span class="text-brand">{job.name}</span>
@@ -192,8 +194,13 @@ if (contrib) {
                   </ul>
                   <div class="mt-3 flex flex-wrap gap-1.5">
                     {job.stack.map((tag) => (
-                      <span class="chip chip-quiet">{tag}</span>
+                      <span class="chip chip-quiet">
+                        <Mark name={tag} />
+                        {tag}
+                      </span>
                     ))}
+                  </div>
+                    </div>
                   </div>
                 </button>
               </li>
@@ -223,11 +230,27 @@ if (contrib) {
                   data-train-car
                 >
                   <span class="work-car-stop" aria-hidden="true"></span>
-                  <div class="flex flex-wrap items-baseline justify-between gap-2">
-                    <h3 class="type-item-title">{product.name}</h3>
-                    <span class="type-meta text-muted-foreground">{product.kindLabel}</span>
+                  {
+                    product.picture ? (
+                      <img
+                        class="product-shot"
+                        src={product.picture}
+                        alt=""
+                        width="640"
+                        height="336"
+                      />
+                    ) : null
+                  }
+                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                    <img class="work-logo" src={product.logo} alt="" width="40" height="40" />
+                    <div class="min-w-0 flex-1">
+                      <div class="flex flex-wrap items-baseline justify-between gap-2">
+                        <h3 class="type-item-title">{product.name}</h3>
+                        <span class="type-meta text-muted-foreground">{product.kindLabel}</span>
+                      </div>
+                      <p class="type-meta text-muted-foreground">{product.period}</p>
+                    </div>
                   </div>
-                  <p class="mt-1 type-meta text-muted-foreground">{product.period}</p>
                   <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {product.summary}
                   </p>
@@ -239,6 +262,14 @@ if (contrib) {
                       </div>
                     ))}
                   </dl>
+                  <div class="mt-3 flex flex-wrap gap-1.5">
+                    {product.stack.map((tag) => (
+                      <span class="chip chip-quiet">
+                        <Mark name={tag} />
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                   <p class="type-meta mt-4 text-brand">Board the train →</p>
                 </button>
               </li>
@@ -286,7 +317,7 @@ if (contrib) {
           hash === "equal-collective"
         ) {
           showTab("products");
-        } else if (hash === "reading" || hash === "blogs" || hash === "designs") {
+        } else if (hash === "reading" || hash === "blogs") {
           return;
         } else {
           showTab("experience");
@@ -327,201 +358,90 @@ if (contrib) {
 
   <section id="loop" class="scroll-mt-12">
     <div class="rule-bleed" aria-hidden="true"></div>
-    <div class="frame-column pt-10 pb-14 md:pt-12">
+    <div class="frame-column frame-column-wide pt-10 pb-14 md:pt-12">
       <h2 class="type-label text-muted-foreground">How I work</h2>
       <p class="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
         Same loop at ANAX, TechPrufer, Equal Collective, and GripGrams. Sit in the seat, then leave a number.
       </p>
-      <ol class="loop-track mt-6 grid gap-4 sm:grid-cols-2">
-        {
-          loop.map((step) => (
-            <li class="loop-car rounded-xl border border-border bg-card p-4">
-              <p class="type-meta text-muted-foreground">{step.n}</p>
-              <p class="mt-2 type-item-title">{step.title}</p>
-              <p class="mt-2 text-sm leading-6 text-muted-foreground">{step.body}</p>
-            </li>
-          ))
-        }
-      </ol>
+      <div class="loop-circuit mt-6">
+        <ol class="loop-nodes">
+          {
+            loop.map((step, index) => (
+              <li class={`loop-node loop-node-${index + 1}`}>
+                <p class="loop-index">{step.n}</p>
+                <p class="type-item-title mt-2">{step.title}</p>
+                <p class="mt-2 text-sm leading-6 text-muted-foreground">{step.body}</p>
+              </li>
+            ))
+          }
+        </ol>
+        <div class="loop-edge loop-edge-ab" aria-hidden="true"></div>
+        <div class="loop-edge loop-edge-bc" aria-hidden="true"></div>
+        <div class="loop-edge loop-edge-cd" aria-hidden="true"></div>
+        <div class="loop-edge loop-edge-da" aria-hidden="true"></div>
+        <p class="loop-hub" aria-hidden="true">↻</p>
+      </div>
+      <p class="loop-return type-meta mt-3 text-muted-foreground">Then back to the seat.</p>
     </div>
   </section>
 
   <section id="stack" class="scroll-mt-12">
     <div class="rule-bleed" aria-hidden="true"></div>
-    <div class="frame-column pt-10 pb-14 md:pt-12">
+    <div class="frame-column frame-column-wide pt-10 pb-14 md:pt-12">
       <h2 class="type-label text-muted-foreground">Stacks I actually use</h2>
       <p class="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-        Daily product work, agents in the editor, the Media.net data plane, and the mobile stack for GripGrams.
+        Agents, languages, backend, cloud, data, analytics, systems — plus the mobile kit for GripGrams.
       </p>
-      <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="tool-wall mt-6">
         {
           stackGroups.map((group) => (
-            <div class="rounded-xl border border-border bg-card p-4">
-              <h3 class="type-label text-muted-foreground">{group.title}</h3>
-              <div class="mt-3 flex flex-wrap gap-1.5">
+            <section class="tool-tray">
+              <h3 class="tool-tab">{group.title}</h3>
+              <div class="tool-pegs">
                 {group.items.map((item) => (
                   <span class:list={[item.featured ? "chip" : "chip chip-quiet"]}>
+                    <Mark name={item.name} />
                     {item.name}
                   </span>
                 ))}
               </div>
-            </div>
+            </section>
           ))
         }
       </div>
     </div>
   </section>
 
+  <Contributions years={contribYears} />
+
   <section id="reading" class="scroll-mt-12">
     <div class="rule-bleed" aria-hidden="true"></div>
     <div class="frame-column frame-column-wide pt-10 pb-14 md:pt-12">
       <h2 class="type-label text-muted-foreground">Reading</h2>
-      <div
-        class="work-tablist mt-6 flex gap-6 border-b border-rule"
-        role="tablist"
-        aria-label="Blogs or designs"
-      >
-        <button
-          class="work-tab is-active"
-          type="button"
-          role="tab"
-          id="tab-blogs"
-          aria-selected="true"
-          aria-controls="blogs"
-          data-reading-tab="blogs"
-        >
-          Blogs
-        </button>
-        <button
-          class="work-tab"
-          type="button"
-          role="tab"
-          id="tab-designs"
-          aria-selected="false"
-          aria-controls="designs"
-          data-reading-tab="designs"
-        >
-          Designs
-        </button>
-      </div>
-
-      <div class="work-split" data-work-track="blogs">
-        <div
-          id="blogs"
-          class="is-active"
-          role="tabpanel"
-          aria-labelledby="tab-blogs"
-          data-work-panel="blogs"
-        >
-          <h3 class="work-split-heading type-label text-muted-foreground">Blogs</h3>
-          <p class="mt-6 max-w-xl text-sm leading-6 text-muted-foreground lg:mt-0">
-            Feature trails I follow on
-            {" "}
-            <a href={`${TECHPRUFER}/blogs`}>TechPrufer</a>.
-          </p>
-          <ol class="work-track mt-6">
-            {
-              blogTrails.map((trail, index) => (
-                <li class="work-car" style={`--i: ${index}`}>
-                  <a class="work-car-hit" href={trailHref(trail)}>
-                    <span class="work-car-stop" aria-hidden="true"></span>
-                    <p class="type-meta text-muted-foreground">{trail.company}</p>
-                    <h3 class="type-item-title mt-1">{trail.feature}</h3>
-                    <p class="type-meta mt-4 text-brand">Open trail on TechPrufer →</p>
-                  </a>
-                </li>
-              ))
-            }
-          </ol>
-        </div>
-
-        <div
-          id="designs"
-          role="tabpanel"
-          aria-labelledby="tab-designs"
-          data-work-panel="designs"
-        >
-          <h3 class="work-split-heading type-label text-muted-foreground">Designs</h3>
-          <p class="mt-6 max-w-xl text-sm leading-6 text-muted-foreground lg:mt-0">
-            System designs I marked solved on TechPrufer. Saved prompts sit under the cars.
-          </p>
-          <ol class="work-track work-track-products mt-6">
-            {
-              solvedDesigns.map((item, index) => (
-                <li class="work-car" style={`--i: ${index}`}>
-                  <a class="work-car-hit" href={designHref(item)}>
-                    <span class="work-car-stop" aria-hidden="true"></span>
-                    <div class="flex flex-wrap items-baseline justify-between gap-2">
-                      <h3 class="type-item-title">{item.title}</h3>
-                      <span class="type-meta text-muted-foreground">{item.company}</span>
-                    </div>
-                    <p class="type-meta mt-1 text-muted-foreground">{item.category}</p>
-                    <p class="type-meta mt-4 text-brand">Open on TechPrufer →</p>
-                  </a>
-                </li>
-              ))
-            }
-          </ol>
-          <p class="type-label mt-8 text-muted-foreground">Also saved</p>
-          <div class="mt-3 flex flex-wrap gap-1.5">
-            {
-              likedDesigns.map((item) => (
-                <a class="chip chip-quiet" href={designHref(item)}>
-                  {item.company}: {item.title}
-                </a>
-              ))
-            }
-          </div>
-        </div>
-      </div>
+      <p class="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
+        Feature trails I follow on
+        {" "}
+        <a href={`${TECHPRUFER}/blogs`}>TechPrufer</a>.
+      </p>
+      <ol class="work-track mt-6">
+        {
+          blogTrails.map((trail, index) => (
+            <li class="work-car" style={`--i: ${index}`}>
+              <a class="work-car-hit" href={trailHref(trail)}>
+                <span class="work-car-stop" aria-hidden="true"></span>
+                <p class="type-meta text-muted-foreground">{trail.company}</p>
+                <h3 class="type-item-title mt-1">{trail.feature}</h3>
+                <p class="type-meta mt-4 text-brand">Open trail on TechPrufer →</p>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="mt-12 font-mono text-[11px] text-muted-foreground">{site.mark}</p>
     </div>
     <script>
       const root = document.getElementById("reading");
-      const tabs = root?.querySelectorAll<HTMLButtonElement>("[data-reading-tab]");
-      const panels = root?.querySelectorAll<HTMLElement>("[data-work-panel]");
-      const track = root?.querySelector<HTMLElement>(".work-split");
-      const wide = window.matchMedia("(min-width: 64rem)");
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-      function showTab(name: string) {
-        if (wide.matches) {
-          track?.setAttribute("data-work-track", "both");
-          panels?.forEach((panel) => panel.classList.add("is-active"));
-          return;
-        }
-        track?.setAttribute("data-work-track", name);
-        tabs?.forEach((tab) => {
-          const on = tab.dataset.readingTab === name;
-          tab.classList.toggle("is-active", on);
-          tab.setAttribute("aria-selected", on ? "true" : "false");
-        });
-        panels?.forEach((panel) => {
-          panel.classList.toggle("is-active", panel.dataset.workPanel === name);
-        });
-      }
-
-      function fromHash() {
-        if (wide.matches) {
-          showTab("blogs");
-          return;
-        }
-        const hash = window.location.hash.replace("#", "");
-        if (hash === "designs") showTab("designs");
-        else if (hash === "blogs" || hash === "reading") showTab("blogs");
-      }
-
-      tabs?.forEach((tab) => {
-        tab.addEventListener("click", () => {
-          const name = tab.dataset.readingTab ?? "blogs";
-          showTab(name);
-          history.replaceState({}, "", name === "designs" ? "#designs" : "#reading");
-        });
-      });
-
-      wide.addEventListener("change", fromHash);
-      window.addEventListener("hashchange", fromHash);
-      fromHash();
-
       const cars = root?.querySelectorAll<HTMLElement>(".work-car") ?? [];
       if (!reduce.matches) {
         const io = new IntersectionObserver(
@@ -540,119 +460,5 @@ if (contrib) {
         cars.forEach((car) => car.classList.add("is-inview"));
       }
     </script>
-  </section>
-
-  <section id="about" class="scroll-mt-12">
-    <div class="rule-bleed" aria-hidden="true"></div>
-    <div class="frame-column pt-10 pb-14 md:pt-12">
-      <h2 class="type-label text-muted-foreground">About me</h2>
-      <div class="prose-reading mt-6">
-        <p>
-          {
-            site.aboutParts.map((part) =>
-              part.id ? (
-                <button
-                  type="button"
-                  class="about-mark"
-                  data-open-train={part.id}
-                >
-                  {part.t}
-                </button>
-              ) : (
-                part.t
-              ),
-            )
-          }
-        </p>
-      </div>
-      <p class="type-label mt-8 text-muted-foreground">Focus</p>
-      <div class="mt-3 flex flex-wrap gap-1.5">
-        {site.focus.map((item) => <span class="chip chip-quiet">{item}</span>)}
-      </div>
-    </div>
-  </section>
-
-  <section id="ask" class="scroll-mt-12">
-    <div class="rule-bleed" aria-hidden="true"></div>
-    <div class="frame-column pt-10 pb-14 md:pt-12">
-      <h2 class="type-label text-muted-foreground">Ask an AI</h2>
-      <p class="mt-4 max-w-xl text-[17px] leading-7 text-muted-strong">
-        This site publishes everything about me as plain text at
-        <a class="underline decoration-border underline-offset-4" href="/llms.txt"
-          >/llms.txt</a
-        >. Hand that to any assistant.
-      </p>
-      <div class="mt-5 flex flex-wrap gap-3">
-        <a class="btn btn-outline" href={`https://chatgpt.com/?q=${llmsPrompt}`}
-          >ChatGPT</a
-        >
-        <a class="btn btn-outline" href={`https://claude.ai/new?q=${llmsPrompt}`}
-          >Claude</a
-        >
-        <a
-          class="btn btn-outline"
-          href={`https://www.perplexity.ai/search?q=${llmsPrompt}`}>Perplexity</a
-        >
-      </div>
-    </div>
-  </section>
-
-  <section id="activity" class="scroll-mt-12">
-    <div class="rule-bleed" aria-hidden="true"></div>
-    <div class="frame-column pt-10 pb-14 md:pt-12">
-      <h2 class="type-label text-muted-foreground">GitHub</h2>
-      {
-        contrib ? (
-          <div class="mt-6">
-            <p class="font-mono text-sm">
-              Total contributions ({year}): {contrib.total.toLocaleString()}
-            </p>
-            <div class="heat-map mt-4">
-              {
-                weeks.map((week) => (
-                  <div class="heat-week">
-                    {week.map((day) =>
-                      day.count < 0 ? (
-                        <div class="heat-cell opacity-0" />
-                      ) : (
-                        <div
-                          class:list={["heat-cell", heatLevel(day.count)]}
-                          title={`${day.count} on ${day.date}`}
-                        />
-                      ),
-                    )}
-                  </div>
-                ))
-              }
-            </div>
-          </div>
-        ) : null
-      }
-      <p class="mt-8 max-w-2xl text-sm leading-6 text-muted-foreground">
-        Open-source software I forked and used. See
-        {" "}
-        <a href={site.github}>{site.githubUser}</a>.
-      </p>
-      <ul class="mt-6 divide-y divide-rule border-y border-rule">
-        {
-          ossRepos.map((repo) => (
-            <li class="grid gap-1 py-3 sm:grid-cols-[8.5rem_1fr] sm:gap-6">
-              <span class="type-meta text-muted-foreground">fork</span>
-              <div class="min-w-0">
-                <a href={repo.url}>
-                  <span class="type-meta text-muted-foreground">Adhikram/{repo.name}</span>
-                </a>
-                <p class="mt-1 text-sm leading-6 text-muted-strong">{repo.note}</p>
-                <p class="type-meta mt-1 text-muted-foreground">
-                  upstream{" "}
-                  <a href={repo.upstreamUrl}>{repo.upstream}</a>
-                </p>
-              </div>
-            </li>
-          ))
-        }
-      </ul>
-      <p class="mt-12 font-mono text-[11px] text-muted-foreground">{site.mark}</p>
-    </div>
   </section>
 </Layout>
