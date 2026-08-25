@@ -42,7 +42,7 @@ const chunks: Chunk[] = [
   {
     id: "contact",
     keywords: ["email", "contact", "linkedin", "hire", "reach", "available", "open"],
-    text: `Email ${site.email}. LinkedIn ${site.linkedin}. GitHub ${site.github}. Resume ${site.resume}. Open to relocate for a forward-deployed / AI deployment seat.`,
+    text: `Email ${site.email}. LinkedIn ${site.linkedin}. GitHub ${site.github}. Twitter ${site.twitter}. Looking forward to forward-deployment opportunities.`,
   },
   {
     id: "loop",
@@ -113,11 +113,11 @@ export function answerQuestion(query: string): string {
   const lower = q.toLowerCase();
 
   if (/\b(email|contact|linkedin|reach|hire)\b/.test(lower)) {
-    return `Fastest path is email: ${site.email}. LinkedIn is ${site.linkedin}. Resume lives at ${site.resume}.`;
+    return `Fastest path is email: ${site.email}. LinkedIn is ${site.linkedin}. Twitter is ${site.twitter}.`;
   }
 
   if (/\b(open|available|reloc|fde|role|job|hiring)\b/.test(lower)) {
-    return `Yes. I am based in ${site.locationShort} and open to relocate for a forward-deployed / AI deployment seat. Write to ${site.email} with the JD if you want me to check fit.`;
+    return `Yes. I am based in ${site.locationShort} and looking forward to forward-deployment opportunities. Write to ${site.email} with the JD if you want me to check fit.`;
   }
 
   if (/\b(who|about|bio)\b/.test(lower) || lower === "who is adhikram?") {

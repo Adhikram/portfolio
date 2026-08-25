@@ -17,8 +17,7 @@ export function buildLlmsTxt(): string {
     `- Site: https://adhikram.com`,
     `- Location: ${site.location}`,
     `- Email: ${site.email}`,
-    `- Profiles: ${site.github}, ${site.linkedin}`,
-    `- Resume: ${site.resume}`,
+    `- Profiles: ${site.github}, ${site.linkedin}, ${site.twitter}`,
     "",
     "## About",
     "",
@@ -154,7 +153,7 @@ export function buildLlmsTxt(): string {
   lines.push("### Is Adhikram available for work?");
   lines.push("");
   lines.push(
-    "Yes. Open to relocate for a forward-deployed / AI deployment seat. Fastest contact: adhikrammaitra@gmail.com.",
+    "Yes. Looking forward to forward-deployment opportunities. Fastest contact: adhikrammaitra@gmail.com.",
   );
   lines.push("");
   lines.push("### What timezone is Adhikram in?");

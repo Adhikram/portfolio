@@ -33,6 +33,8 @@ export const MARK_SRC: Record<string, string> = {
   Smartlead: "/marks/smartlead.svg",
   GitHub: "/marks/github.svg",
   LinkedIn: "/marks/linkedin.svg",
+  X: "/marks/x.svg",
+  Twitter: "/marks/x.svg",
   Resume: "/marks/resume.svg",
   JavaScript: "/marks/javascript.svg",
   SQL: "/marks/postgresql.svg",

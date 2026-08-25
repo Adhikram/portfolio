@@ -18,44 +18,46 @@ const llmsPrompt = encodeURIComponent(
 ---
 
 <Layout>
-  <header id="top" class="scroll-blur-out frame-column frame-column-wide pt-8 pb-12 md:pt-20 md:pb-16">
+  <header id="top" class="scroll-blur-out frame-column frame-column-wide pt-3 pb-10 md:pt-5 md:pb-12">
     <div class="flex flex-col gap-8 md:flex-row md:items-start md:gap-12">
       <div class="flex min-w-0 flex-1 flex-col">
         <h1 class="type-display text-foreground">{site.name}</h1>
-        <p class="mt-4 text-[19px] leading-relaxed text-muted-strong md:text-[21px]">
+        <p class="mt-4 max-w-2xl text-[18px] leading-snug text-muted-strong md:text-[20px]">
           {site.role}
         </p>
-        <div id="about" class="prose-reading mt-5 scroll-mt-12">
-          <p>
-            {
-              site.aboutParts.map((part) =>
-                part.id ? (
-                  <button type="button" class="about-mark" data-open-train={part.id}>
-                    {part.t}
-                  </button>
-                ) : (
-                  part.t
-                ),
-              )
-            }
-          </p>
+        <div id="about" class="prose-reading mt-6 scroll-mt-12">
+          {
+            site.aboutStory.map((paragraph) => (
+              <p>
+                {paragraph.map((part) =>
+                  part.id ? (
+                    <button type="button" class="about-mark" data-open-train={part.id}>
+                      {part.t}
+                    </button>
+                  ) : (
+                    part.t
+                  ),
+                )}
+              </p>
+            ))
+          }
         </div>
         <div class="mt-6 flex flex-wrap items-center gap-2">
           <a class="btn btn-outline" href={site.github}>
-            <Mark name="GitHub" />GitHub
+            <Mark name="GitHub" loading="eager" />GitHub
           </a>
           <a class="btn btn-outline" href={site.linkedin}>
-            <Mark name="LinkedIn" />LinkedIn
+            <Mark name="LinkedIn" loading="eager" />LinkedIn
           </a>
-          <a class="btn btn-outline" href={site.resume}>
-            <Mark name="Resume" />Resume
+          <a class="btn btn-outline" href={site.twitter}>
+            <Mark name="X" loading="eager" />Twitter
           </a>
         </div>
       </div>
 
       <aside
         aria-label="Status"
-        class="flex shrink-0 flex-col gap-5 border-t border-border pt-6 md:w-80 md:border-t-0 md:border-l md:pt-1 md:pl-8 lg:w-96"
+        class="flex shrink-0 flex-col gap-4 border-t border-border pt-6 md:w-80 md:border-t-0 md:border-l md:pt-1 md:pl-8 lg:w-96"
       >
         <div class="group flex items-start gap-2.5">
           <span
@@ -92,29 +94,23 @@ const llmsPrompt = encodeURIComponent(
           <div class="hero-stack mt-2.5">
             {site.currentStack.map((item) => (
               <span class="chip">
-                <Mark name={item} />
-                {item}
+                <Mark name={item} loading="eager" />
+                <span class="chip-label">{item}</span>
               </span>
             ))}
           </div>
         </div>
         <div>
           <p class="type-label text-muted-foreground">Ask an AI about me</p>
-          <div class="mt-2.5 flex flex-col items-start gap-y-2">
-            <a
-              class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              href={`https://chatgpt.com/?q=${llmsPrompt}`}
-              ><Mark name="ChatGPT" />ChatGPT</a
+          <div class="hero-ask mt-2.5">
+            <a href={`https://chatgpt.com/?q=${llmsPrompt}`}
+              ><Mark name="ChatGPT" loading="eager" />ChatGPT</a
             >
-            <a
-              class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              href={`https://claude.ai/new?q=${llmsPrompt}`}
-              ><Mark name="Claude" />Claude</a
+            <a href={`https://claude.ai/new?q=${llmsPrompt}`}
+              ><Mark name="Claude" loading="eager" />Claude</a
             >
-            <a
-              class="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              href={`https://www.perplexity.ai/search?q=${llmsPrompt}`}
-              ><Mark name="Perplexity" />Perplexity</a
+            <a href={`https://www.perplexity.ai/search?q=${llmsPrompt}`}
+              ><Mark name="Perplexity" loading="eager" />Perplexity</a
             >
           </div>
         </div>
@@ -176,7 +172,7 @@ const llmsPrompt = encodeURIComponent(
                 >
                   <span class="work-car-stop" aria-hidden="true"></span>
                   <div class="flex items-start gap-3">
-                    <img class="work-logo" src={job.logo} alt="" width="40" height="40" />
+                    <img class="work-logo" src={job.logo} alt="" width="40" height="40" loading="lazy" decoding="async" />
                     <div class="min-w-0 flex-1">
                   <p class="type-meta text-muted-foreground">{job.period}</p>
                   <h3 class="type-item-title mt-1">
@@ -238,11 +234,13 @@ const llmsPrompt = encodeURIComponent(
                         alt=""
                         width="640"
                         height="336"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : null
                   }
                   <div class="mt-3 flex flex-wrap items-center gap-2">
-                    <img class="work-logo" src={product.logo} alt="" width="40" height="40" />
+                    <img class="work-logo" src={product.logo} alt="" width="40" height="40" loading="lazy" decoding="async" />
                     <div class="min-w-0 flex-1">
                       <div class="flex flex-wrap items-baseline justify-between gap-2">
                         <h3 class="type-item-title">{product.name}</h3>

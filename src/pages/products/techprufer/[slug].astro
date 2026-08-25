@@ -14,7 +14,11 @@ const { surface } = Astro.props;
 const others = techpruferSurfaces.filter((item) => item.slug !== surface.slug);
 ---
 
-<Layout title={`${surface.label} · TechPrufer`} description={surface.summary}>
+<Layout
+  title={`${surface.label} · TechPrufer`}
+  description={surface.summary}
+  image="/products/techprufer.png"
+>
   <article class="frame-column pt-16 pb-20 md:pt-20">
     <p class="type-label text-muted-foreground">
       <a href="/products/techprufer" class="hover:text-foreground">TechPrufer</a>

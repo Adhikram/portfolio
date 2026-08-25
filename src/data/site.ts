@@ -1,3 +1,53 @@
+export type AboutMark = { t: string; id?: string };
+
+const aboutStory: AboutMark[][] = [
+  [
+    { t: "Most mornings I am still on a New York broker's screen, working remote from India. At " },
+    { t: "ANAX", id: "anax" },
+    {
+      t: " I am founding engineer on the commercial real-estate dashboard they close on. RAG over 20K+ financial documents, a chat they can stay in for the whole deal, outreach that lifted qualified deal flow about 10x, and more than $100K through a loop the desk can run after I leave the chair.",
+    },
+  ],
+  [
+    { t: "The product I operate in public is " },
+    { t: "TechPrufer", id: "techprufer" },
+    {
+      t: ". Job intel plus a tailoring workbench for people who already live in an editor. 400+ company trails, an MCP that Cursor and Claude can call, Chrome capture, LaTeX resumes. About 2,000 unique people use it on a given day.",
+    },
+  ],
+  [
+    { t: "Two other products sit outside that job. " },
+    { t: "GripGrams", id: "gripgrams" },
+    {
+      t: " is in my hands now. A free nutrition and strength app for a household, Expo on both phones, no paywall. ",
+    },
+    { t: "Equal Collective", id: "equal-collective" },
+    {
+      t: " was the seller-ops SaaS I took from a blank repo to $20K+ MRR, with 30K+ listings enriched so outreach had something true to send.",
+    },
+  ],
+  [
+    { t: "I learned to trust a pipeline the long way. Four years on " },
+    { t: "Media.net", id: "media-net" },
+    {
+      t: "'s ad-tech data plane at Directi. Kafka at 50k records a second, Spark jobs that compared nearly 3 billion rows in 30 minutes, streaming audits that cut latency about in half. Before that, ",
+    },
+    { t: "Devsnest", id: "devsnest" },
+    {
+      t: ". A community backend that reached 10K users in three months while notifications held at 2K messages a day.",
+    },
+  ],
+  [
+    {
+      t: "I want the next seat that still starts in someone else's workflow. Sit with the operator, ship agents and RAG against live systems, leave a number they can keep moving. Looking forward to forward-deployment opportunities.",
+    },
+  ],
+];
+
+function storyToAbout(story: AboutMark[][]): string {
+  return story.map((paragraph) => paragraph.map((part) => part.t).join("")).join("\n\n");
+}
+
 export const site = {
   name: "Adhikram Maitra",
   shortName: "Adhikram",
@@ -6,35 +56,18 @@ export const site = {
   title: "Adhikram Maitra · production GenAI with operators",
   description:
     "Founding engineer at ANAX ($100K+ deal revenue, ~10x deal flow). Founder of TechPrufer (~2k uniques/day). Data platforms at Media.net (3B-row checks). Side products: Equal Collective ($20K+ MRR) and GripGrams.",
-  role: "Founding engineer · founder",
+  role: "I sit in the workflow. Then I ship the agent that has to survive it.",
   tagline:
-    "I embed with the people who run the workflow, then take agents and RAG from a messy desk to something that moves a number: deal flow, latency, or MRR.",
-  about:
-    "I'm a founding engineer in India. I sit with ANAX brokers and ship the agentic layer on a commercial real-estate dashboard: RAG over 20K+ docs, ~10x deal flow, $100K+ through the loop. TechPrufer is the public product: job intel, a tailoring workbench, and an MCP other IDEs can call. GripGrams is the mobile product I am shipping now. Equal Collective is the seller-ops loop that went to $20K+ MRR. Before that I spent four years on Media.net's ad-tech data plane, streaming and checking billions of rows, including ~3B-row compares in 30 minutes. I am open to relocate for a forward-deployed / AI deployment seat.",
-  aboutParts: [
-    { t: "I'm a founding engineer in India. I sit with " },
-    { t: "ANAX", id: "anax" },
-    {
-      t: " brokers and ship the agentic layer on a commercial real-estate dashboard: RAG over 20K+ docs, ~10x deal flow, $100K+ through the loop. ",
-    },
-    { t: "TechPrufer", id: "techprufer" },
-    {
-      t: " is the public product: job intel, a tailoring workbench, and an MCP other IDEs can call. ",
-    },
-    { t: "GripGrams", id: "gripgrams" },
-    { t: " is the mobile product I am shipping now. " },
-    { t: "Equal Collective", id: "equal-collective" },
-    { t: " is the seller-ops loop that went to $20K+ MRR. Before that I spent four years on " },
-    { t: "Media.net", id: "media-net" },
-    {
-      t: "'s ad-tech data plane, streaming and checking billions of rows, including ~3B-row compares in 30 minutes. I am open to relocate for a forward-deployed / AI deployment seat.",
-    },
-  ] as { t: string; id?: string }[],
+    "Desks first, then agents, then a number someone else can still move.",
+  about: storyToAbout(aboutStory),
+  aboutStory,
   location: "India — UTC+5:30",
   locationShort: "India, IST",
   email: "adhikrammaitra@gmail.com",
   github: "https://github.com/Adhikram",
   githubUser: "Adhikram",
+  twitter: "https://x.com/Adhikram",
+  twitterUser: "Adhikram",
   githubOrgs: [
     {
       login: "Anax-Codex",

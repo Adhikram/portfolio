@@ -16,7 +16,11 @@ const others = ownedProducts.filter((item) => item.id !== product.id);
 const isTechPrufer = product.id === "techprufer";
 ---
 
-<Layout title={`${product.name} · ${site.shortName}`} description={product.summary}>
+<Layout
+  title={`${product.name} · ${site.shortName}`}
+  description={product.summary}
+  image={product.picture}
+>
   <article class="frame-column pt-16 pb-20 md:pt-20">
     <p class="type-label text-muted-foreground">
       <a href="/#products" class="hover:text-foreground">Products</a>
@@ -31,12 +35,13 @@ const isTechPrufer = product.id === "techprufer";
           alt=""
           width="1200"
           height="630"
+          decoding="async"
         />
       ) : null
     }
     <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
       <div class="flex min-w-0 items-center gap-3">
-        <img class="work-logo" src={product.logo} alt="" width="40" height="40" />
+        <img class="work-logo" src={product.logo} alt="" width="40" height="40" decoding="async" />
         <h1 class="type-display">{product.name}</h1>
       </div>
       <p class="type-meta text-muted-foreground">{product.kindLabel} · {product.period}</p>
@@ -134,7 +139,7 @@ const isTechPrufer = product.id === "techprufer";
                 >
                   <div class="flex flex-wrap items-center justify-between gap-2">
                     <span class="inline-flex items-center gap-2 type-item-title group-hover:text-brand">
-                      <img class="work-logo" src={item.logo} alt="" width="40" height="40" />
+                      <img class="work-logo" src={item.logo} alt="" width="40" height="40" loading="lazy" decoding="async" />
                       {item.name}
                     </span>
                     <span class="type-meta text-muted-foreground">{item.kindLabel}</span>
