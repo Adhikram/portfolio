@@ -12,14 +12,14 @@ const aboutStory: AboutMark[][] = [
     { t: "The product I operate in public is " },
     { t: "TechPrufer", id: "techprufer" },
     {
-      t: ". Job intel plus a tailoring workbench for people who already live in an editor. 400+ company trails, an MCP that Cursor and Claude can call, Chrome capture, LaTeX resumes. About 2,000 unique people use it on a given day.",
+      t: ". Job intel plus a tailoring workbench for people who already live in an editor. 400+ company trails, an MCP that Cursor, Claude and ChatGPT can call, Chrome capture, LaTeX resumes. About 2,000 unique people use it on a given day.",
     },
   ],
   [
     { t: "Two other products sit outside that job. " },
     { t: "GripGrams", id: "gripgrams" },
     {
-      t: " is in my hands now. A free nutrition and strength app for a household, Expo on both phones, no paywall. ",
+      t: " went live on Google Play in 178 countries this month, with iPhone on TestFlight. Kitchen, gym, tasks, medicines and health data for a whole household on one Expo codebase, plus an assistant that drafts and an MCP connector for Claude and ChatGPT. ",
     },
     { t: "Equal Collective", id: "equal-collective" },
     {
@@ -55,7 +55,7 @@ export const site = {
   mark: "am. my initials. sit in the seat, then ship.",
   title: "Adhikram Maitra · production GenAI with operators",
   description:
-    "Founding engineer at ANAX ($100K+ deal revenue, ~10x deal flow). Founder of TechPrufer (~2k uniques/day). Data platforms at Media.net (3B-row checks). Side products: Equal Collective ($20K+ MRR) and GripGrams.",
+    "Founding engineer at ANAX ($100K+ deal revenue, ~10x deal flow). Founder of TechPrufer (~2k uniques/day). Data platforms at Media.net (3B-row checks). Side products: GripGrams (live on Google Play) and Equal Collective ($20K+ MRR).",
   role: "I sit in the workflow. Then I ship the agent that has to survive it.",
   tagline:
     "Desks first, then agents, then a number someone else can still move.",
@@ -299,7 +299,7 @@ export const products: Product[] = [
     id: "gripgrams",
     name: "GripGrams",
     kind: "founder",
-    kindLabel: "Building now",
+    kindLabel: "Live on Google Play",
     bucket: "product",
     role: "Founder",
     period: "2025 - present",
@@ -307,20 +307,24 @@ export const products: Product[] = [
     logo: "/brands/gripgrams.svg",
     picture: "/products/gripgrams.svg",
     summary:
-      "Currently shipping. Nutrition and strength-training app: kitchen, barcode, gym, family tracker. Expo / React Native with Firebase. Fully free.",
+      "Your life, in one grip. Kitchen, gym, tasks, medicines and health data for a household in one app. Live on Google Play in 178 countries, iPhone and iPad on TestFlight. Expo / React Native on Firebase.",
     metrics: [
-      { value: "iOS + Android", label: "Expo / EAS" },
-      { value: "Free", label: "no paywall at launch" },
+      { value: "178", label: "countries on Google Play" },
+      { value: "iOS + Android", label: "one Expo codebase" },
+      { value: "iPad + Mac", label: "wide layouts" },
     ],
     shipped: [
-      "Shipped a real mobile product: meals, workouts, and household tracking on a TypeScript monorepo.",
-      "Firebase auth and Cloud Functions for the live backend.",
+      "Shipped to Google Play production in 178 countries, with iPhone, iPad and Mac on a public TestFlight link.",
+      "Kitchen, Gym, Tasks, Medication and Health tabs, with a family view on top. Steps, sleep and body data read from Health Connect and Apple Health, one source per metric.",
+      "GG Assist on Gemini drafts meals, workouts and plans; the user confirms before anything is saved. A medicine camera matches the box or strip on-device (Apple Vision, ML Kit).",
+      "An MCP connector so Claude, ChatGPT and Gemini can read and log the same data the phone shows.",
     ],
-    stack: ["Expo", "React Native", "Firebase", "TypeScript"],
+    stack: ["Expo", "React Native", "Firebase", "TypeScript", "Gemini", "MCP"],
     detail: [
-      "GripGrams is the product I am shipping now. It is a nutrition and strength-training app for a household, not a single gym log: kitchen, barcode, workouts, and a family tracker on the same graph.",
-      "The app is Expo / React Native with a TypeScript monorepo. Auth and live backend sit on Firebase, including Cloud Functions. It is free at launch. No paywall.",
-      "I built it as a complete mobile product, not a demo: meals, gym sessions, and household tracking that have to work on both iOS and Android through EAS. The constraint is the same as my other products: operators in a real kitchen or gym, not a slide about health tech.",
+      "GripGrams is the product I am shipping now. It is one app for a household, not a single gym log: kitchen, gym, tasks, medicines and health data, with a family view so one person can look after the others.",
+      "It went live on Google Play in 178 countries in November 2026. iPhone, iPad and Mac run the same build through a public TestFlight link. The app is Expo / React Native in a TypeScript monorepo, with Firebase auth, Firestore and Cloud Functions behind it.",
+      "Health data comes from Health Connect on Android and Apple Health on iPhone. GG Assist, on Gemini, drafts meals, workouts and plans, and nothing is saved until the user confirms it. Medicines get a per-field check and an on-device camera match against the box or strip.",
+      "The MCP connector lets Claude, ChatGPT and Gemini read and log the same records the phone shows. I built it as a complete product, not a demo: real people in a real kitchen or gym, on both phones.",
     ],
   },
   {
@@ -343,14 +347,14 @@ export const products: Product[] = [
     ],
     shipped: [
       "Scraper and clustering pipeline that turns open interview and blog sources into trails for 400+ companies.",
-      "MCP server so Cursor, Claude, Codex, and Antigravity can tailor a profile against any JD.",
+      "MCP server so Cursor, Claude, Codex, and Antigravity can tailor a profile against any JD. A remote connector at techprufer.com/api/mcp brings the same 30 tools into ChatGPT and Claude, signed in with OAuth.",
       "Chrome extension for job capture, autofill, and LinkedIn, plus a LaTeX PDF engine. I ran 150+ role-specific resumes through the same loop.",
     ],
     stack: ["Next.js", "Drizzle", "PostgreSQL", "MCP", "Python", "TypeScript"],
     detail: [
       "TechPrufer is the public product I own. It is job intel plus a tailoring workbench: company blogs, interview trails, an MCP that other IDEs can call, Chrome capture, and a LaTeX resume engine.",
       "The data side is a scraper and clustering pipeline over open interview and blog sources. That bank now covers 400+ companies. The product side is a live site at about 2,000 unique users a day.",
-      "The MCP server is the piece other agents use. Cursor, Claude, Codex, and Antigravity can tailor a profile against a JD without leaving the editor. The Chrome extension captures jobs, helps autofill, and renders a pixel-perfect LaTeX PDF. I ran the same loop for 150+ role-specific resumes.",
+      "The MCP server is the piece other agents use. Cursor, Claude, Codex, and Antigravity can tailor a profile against a JD without leaving the editor. Since October the same server runs as a remote connector for ChatGPT and Claude: OAuth into the TechPrufer account, 30 tools, and one call that prepares a tailored resume and research for a role. The Chrome extension captures jobs, helps autofill, and renders a pixel-perfect LaTeX PDF. I ran the same loop for 150+ role-specific resumes.",
       "Stack is Next.js, TypeScript, Drizzle, PostgreSQL, Python, and MCP. I operate it as a GenAI product with a real user loop, not a portfolio toy.",
     ],
   },

@@ -55,7 +55,7 @@ export function buildLlmsTxt(): string {
 
   lines.push("## Products", "");
   lines.push(
-    "Owned products, most recent first: GripGrams (currently shipping), TechPrufer, Equal Collective. Detail pages live at /products/<id>.",
+    "Owned products, most recent first: GripGrams (live on Google Play), TechPrufer, Equal Collective. Detail pages live at /products/<id>.",
   );
   lines.push("");
 
